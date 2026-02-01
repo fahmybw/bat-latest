@@ -62,6 +62,10 @@ import {
   Workflow,
   X,
   Moon,
+  Upload,
+  Workflow,
+  X,
+main
 } from "lucide-react";
 import {
   Area,
@@ -411,6 +415,9 @@ function TopBar({
   onToggleTheme: () => void;
 }) {
   const isDark = theme === "dark";
+
+function TopBar({ tier = "Premium" }: { tier?: string }) {
+ main
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
@@ -450,6 +457,8 @@ function TopBar({
             </>
           )}
         </Button>
+
+main
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -1048,6 +1057,7 @@ export default function BatTabPreview() {
     root.classList.toggle("dark", theme === "dark");
     window.localStorage.setItem("bat-theme", theme);
   }, [theme]);
+ main
 
   const [connected, setConnected] = useState<Record<AppKey, boolean>>({
     erp: true,
@@ -1285,6 +1295,8 @@ export default function BatTabPreview() {
             setTheme((prev) => (prev === "dark" ? "light" : "dark"))
           }
         />
+        <TopBar tier="Premium" />
+ main
 
         {/* Global dialogs */}
         <Dialog open={apiOpen} onOpenChange={setApiOpen}>
