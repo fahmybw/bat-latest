@@ -62,6 +62,12 @@ import {
   Workflow,
   X,
   Moon,
+codex/deploy-bat-app-to-github-and-vercel-2mwmqm
+  Upload,
+  Workflow,
+  X,
+main
+main
 } from "lucide-react";
 import {
   Area,
@@ -411,6 +417,12 @@ function TopBar({
   onToggleTheme: () => void;
 }) {
   const isDark = theme === "dark";
+codex/deploy-bat-app-to-github-and-vercel-2mwmqm
+
+
+function TopBar({ tier = "Premium" }: { tier?: string }) {
+ main
+main
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
@@ -450,6 +462,10 @@ function TopBar({
             </>
           )}
         </Button>
+codex/deploy-bat-app-to-github-and-vercel-2mwmqm
+
+main
+main
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -1048,6 +1064,10 @@ export default function BatTabPreview() {
     root.classList.toggle("dark", theme === "dark");
     window.localStorage.setItem("bat-theme", theme);
   }, [theme]);
+ codex/deploy-bat-app-to-github-and-vercel-2mwmqm
+
+ main
+main
 
   const [connected, setConnected] = useState<Record<AppKey, boolean>>({
     erp: true,
@@ -1285,6 +1305,10 @@ export default function BatTabPreview() {
             setTheme((prev) => (prev === "dark" ? "light" : "dark"))
           }
         />
+codex/deploy-bat-app-to-github-and-vercel-2mwmqm
+        <TopBar tier="Premium" />
+ main
+main
 
         {/* Global dialogs */}
         <Dialog open={apiOpen} onOpenChange={setApiOpen}>
