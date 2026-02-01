@@ -57,9 +57,15 @@ import {
   Settings,
   Shield,
   Sparkles,
+  Sun,
   Upload,
   Workflow,
   X,
+  Moon,
+  Upload,
+  Workflow,
+  X,
+main
 } from "lucide-react";
 import {
   Area,
@@ -399,7 +405,19 @@ function SectionHeader({
   );
 }
 
+function TopBar({
+  tier = "Premium",
+  theme,
+  onToggleTheme,
+}: {
+  tier?: string;
+  theme: "light" | "dark";
+  onToggleTheme: () => void;
+}) {
+  const isDark = theme === "dark";
+
 function TopBar({ tier = "Premium" }: { tier?: string }) {
+ main
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
@@ -423,6 +441,24 @@ function TopBar({ tier = "Premium" }: { tier?: string }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
+        <Button
+          variant="ghost"
+          className="rounded-2xl hover:scale-[1.02] transition-transform duration-200"
+          onClick={onToggleTheme}
+          aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
+        >
+          {isDark ? (
+            <>
+              <Sun className="mr-2 h-4 w-4" /> Light
+            </>
+          ) : (
+            <>
+              <Moon className="mr-2 h-4 w-4" /> Dark
+            </>
+          )}
+        </Button>
+
+main
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -1009,6 +1045,19 @@ runSmokeTests();
 export default function BatTabPreview() {
   const [tab, setTab] = useState<TabKey>("chat");
   const [orgId] = useState("bw_demo_org");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") return "dark";
+    const stored = window.localStorage.getItem("bat-theme");
+    if (stored === "light" || stored === "dark") return stored;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("dark", theme === "dark");
+    window.localStorage.setItem("bat-theme", theme);
+  }, [theme]);
+ main
 
   const [connected, setConnected] = useState<Record<AppKey, boolean>>({
     erp: true,
@@ -1239,7 +1288,15 @@ export default function BatTabPreview() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <TopBar
+          tier="Premium"
+          theme={theme}
+          onToggleTheme={() =>
+            setTheme((prev) => (prev === "dark" ? "light" : "dark"))
+          }
+        />
         <TopBar tier="Premium" />
+ main
 
         {/* Global dialogs */}
         <Dialog open={apiOpen} onOpenChange={setApiOpen}>

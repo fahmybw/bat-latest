@@ -3,6 +3,20 @@
 @tailwind utilities;
 
 :root {
+  color-scheme: light;
+  --background: 0 0% 100%;
+  --foreground: 224 19% 12%;
+  --muted: 210 20% 94%;
+  --muted-foreground: 215 16% 38%;
+  --primary: 198 90% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 18% 90%;
+  --secondary-foreground: 224 19% 12%;
+  --border: 214 24% 85%;
+}
+
+.dark {
+ main
   color-scheme: dark;
   --background: 222 47% 9%;
   --foreground: 210 40% 96%;
