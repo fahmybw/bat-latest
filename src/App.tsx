@@ -900,7 +900,7 @@ function NotificationRow({
   );
 }
 
-const generationCategories = [
+const generateTemplates = [
   {
     key: "marketing",
     label: "Marketing",
@@ -1090,19 +1090,7 @@ function GenerateStudio({
   onGenerate: (args: { type: string; tone: string; constraints: string }) => void;
   seed?: { type?: string; tone?: string; constraints?: string; key?: string };
 }) {
-  const [selectedCategory, setSelectedCategory] = useState(
-    generationCategories[0].key
-  );
-  const [selectedInputs, setSelectedInputs] = useState<Record<string, string>>(() =>
-    generationCategories.reduce((acc, category) => {
-      category.inputs.forEach((input) => {
-        acc[`${category.key}:${input.label}`] = input.options[0];
-      });
-      return acc;
-    }, {} as Record<string, string>)
-  );
-  const [inputQuery, setInputQuery] = useState<Record<string, string>>({});
-  const [expandedInputs, setExpandedInputs] = useState<Record<string, boolean>>({});
+  const [selectedTemplate, setSelectedTemplate] = useState(generateTemplates[0].id);
   const [prompt, setPrompt] = useState(
     "Generate a high-impact artifact using the last 30 days of data. Highlight insights, assets, and next actions."
   );
