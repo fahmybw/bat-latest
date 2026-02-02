@@ -62,6 +62,14 @@ import {
   Workflow,
   X,
   Moon,
+ codex/deploy-bat-app-to-github-and-vercel-kw47ze
+codex/deploy-bat-app-to-github-and-vercel-2mwmqm
+  Upload,
+  Workflow,
+  X,
+main
+main
+ main
 } from "lucide-react";
 import {
   Area,
@@ -411,6 +419,12 @@ function TopBar({
   onToggleTheme: () => void;
 }) {
   const isDark = theme === "dark";
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
+codex/deploy-bat-app-to-github-and-vercel-2mwmqm
+function TopBar({ tier = "Premium" }: { tier?: string }) {
+ main
+main
+ main
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
@@ -450,6 +464,13 @@ function TopBar({
             </>
           )}
         </Button>
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
+
+codex/deploy-bat-app-to-github-and-vercel-2mwmqm
+
+main
+main
+main
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -900,6 +921,7 @@ function NotificationRow({
   );
 }
 
+ codex/deploy-bat-app-to-github-and-vercel-kw47ze
 const generateTemplates = [
   {
     id: "social-reel",
@@ -950,19 +972,29 @@ const generateTracks = [
 ];
 
 function GenerateStudio({
+function DocumentGenerator({
+ main
   onGenerate,
   seed,
 }: {
   onGenerate: (args: { type: string; tone: string; constraints: string }) => void;
   seed?: { type?: string; tone?: string; constraints?: string; key?: string };
 }) {
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
   const [selectedTemplate, setSelectedTemplate] = useState(generateTemplates[0].id);
   const [prompt, setPrompt] = useState(
     "Generate a high-impact artifact using the last 30 days of data. Highlight insights, assets, and next actions."
+
+  const [type, setType] = useState("weekly_ops");
+  const [tone, setTone] = useState("executive");
+  const [constraints, setConstraints] = useState(
+    "Use last 7 days of data. Keep it under 1 page. Include risks + next actions."
+ main
   );
 
   useEffect(() => {
     if (!seed) return;
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
     if (seed.constraints) setPrompt(seed.constraints);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seed?.key]);
@@ -1184,6 +1216,92 @@ function GenerateStudio({
         </Card>
       </div>
     </div>
+    if (seed.type) setType(seed.type);
+    if (seed.tone) setTone(seed.tone);
+    if (seed.constraints) setConstraints(seed.constraints);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seed?.key]);
+
+  return (
+    <Card className="rounded-2xl shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-base">Generate a document</CardTitle>
+        <CardDescription>
+          Create reports, SOPs, briefs, and summaries from your BAT memory.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground">Document type</div>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger className="rounded-2xl">
+                <SelectValue placeholder="Choose" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="weekly_ops">Weekly Ops Memo</SelectItem>
+                <SelectItem value="kpi_review">KPI Review</SelectItem>
+                <SelectItem value="process_sop">Process SOP</SelectItem>
+                <SelectItem value="board_pack">Board Pack Summary</SelectItem>
+                <SelectItem value="sales_pipeline">Sales Pipeline Digest</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground">Tone</div>
+            <Select value={tone} onValueChange={setTone}>
+              <SelectTrigger className="rounded-2xl">
+                <SelectValue placeholder="Choose" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="executive">Executive</SelectItem>
+                <SelectItem value="operator">Operator</SelectItem>
+                <SelectItem value="investor">Investor</SelectItem>
+                <SelectItem value="team">Team-friendly</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground">Output</div>
+            <Select defaultValue="pdf">
+              <SelectTrigger className="rounded-2xl">
+                <SelectValue placeholder="Choose" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pdf">PDF</SelectItem>
+                <SelectItem value="docx">DOCX</SelectItem>
+                <SelectItem value="md">Markdown</SelectItem>
+                <SelectItem value="slides">Slides</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-xs font-medium text-muted-foreground">Constraints</div>
+          <Textarea
+            value={constraints}
+            onChange={(e) => setConstraints(e.target.value)}
+            className="min-h-[92px] rounded-2xl"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+            <Lock className="h-4 w-4" /> Uses only sources you’ve approved.
+          </div>
+          <Button
+            className="rounded-2xl"
+            onClick={() => onGenerate({ type, tone, constraints })}
+          >
+            <FileText className="mr-2 h-4 w-4" /> Generate
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+main
   );
 }
 
@@ -1232,6 +1350,13 @@ export default function BatTabPreview() {
     root.classList.toggle("dark", theme === "dark");
     window.localStorage.setItem("bat-theme", theme);
   }, [theme]);
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
+
+ codex/deploy-bat-app-to-github-and-vercel-2mwmqm
+
+ main
+main
+main
 
   const [connected, setConnected] = useState<Record<AppKey, boolean>>({
     erp: true,
@@ -1469,6 +1594,12 @@ export default function BatTabPreview() {
             setTheme((prev) => (prev === "dark" ? "light" : "dark"))
           }
         />
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
+codex/deploy-bat-app-to-github-and-vercel-2mwmqm
+        <TopBar tier="Premium" />
+ main
+main
+main
 
         {/* Global dialogs */}
         <Dialog open={apiOpen} onOpenChange={setApiOpen}>
@@ -1675,7 +1806,11 @@ export default function BatTabPreview() {
                     title="Generate"
                     subtitle="Create reports, SOPs, briefs, and summaries from BAT memory."
                   />
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
                   <GenerateStudio onGenerate={onGenerateDoc} seed={genSeed} />
+
+                  <DocumentGenerator onGenerate={onGenerateDoc} seed={genSeed} />
+                  main
                 </motion.div>
               ) : null}
 
