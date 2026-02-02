@@ -62,14 +62,6 @@ import {
   Workflow,
   X,
   Moon,
- codex/deploy-bat-app-to-github-and-vercel-kw47ze
-codex/deploy-bat-app-to-github-and-vercel-2mwmqm
-  Upload,
-  Workflow,
-  X,
-main
-main
- main
 } from "lucide-react";
 import {
   Area,
@@ -419,12 +411,6 @@ function TopBar({
   onToggleTheme: () => void;
 }) {
   const isDark = theme === "dark";
-codex/deploy-bat-app-to-github-and-vercel-kw47ze
-codex/deploy-bat-app-to-github-and-vercel-2mwmqm
-function TopBar({ tier = "Premium" }: { tier?: string }) {
- main
-main
- main
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
@@ -464,13 +450,6 @@ main
             </>
           )}
         </Button>
-codex/deploy-bat-app-to-github-and-vercel-kw47ze
-
-codex/deploy-bat-app-to-github-and-vercel-2mwmqm
-
-main
-main
-main
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -921,87 +900,103 @@ function NotificationRow({
   );
 }
 
- codex/deploy-bat-app-to-github-and-vercel-kw47ze
-const generateTemplates = [
+const generationCategories = [
   {
-    id: "social-reel",
-    title: "Instagram Reel",
-    summary: "30s competitor breakdown with hooks + CTA.",
-    type: "social",
-    format: "Video storyboard",
-    signal: "Competitors",
+    key: "marketing",
+    label: "Marketing",
+    description: "Campaigns, social, and growth experiments.",
+    accent: "from-amber-500/15 via-orange-500/10 to-rose-500/15",
+    badge: "Growth",
+    inputs: [
+      { label: "Channel", options: ["LinkedIn", "Instagram", "TikTok", "Email"] },
+      { label: "Artifact", options: ["Post", "Reel", "Carousel", "Ad Copy"] },
+      {
+        label: "Purpose",
+        options: ["Lead gen", "Thought leadership", "Launch", "Recruiting"],
+      },
+    ],
   },
   {
-    id: "viral-linkedin",
-    title: "LinkedIn Growth Post",
-    summary: "Founder POV, strong hook, punchy CTA.",
-    type: "social",
-    format: "Post + carousel",
-    signal: "Audience insights",
+    key: "operations",
+    label: "Operations",
+    description: "Process maps, SOPs, and system workflows.",
+    accent: "from-emerald-500/15 via-teal-500/10 to-cyan-500/15",
+    badge: "Ops",
+    inputs: [
+      { label: "Artifact", options: ["SOP", "BPMN Diagram", "Playbook", "Checklist"] },
+      { label: "Scope", options: ["Team", "Company-wide", "Region", "Pilot"] },
+      { label: "Outcome", options: ["Standardize", "Scale", "Automate", "Improve QA"] },
+    ],
   },
   {
-    id: "recruitment-policy",
-    title: "Recruitment Policy",
-    summary: "End-to-end hiring workflow + guardrails.",
-    type: "ops",
-    format: "Policy doc",
-    signal: "HR + Ops",
+    key: "finance",
+    label: "Finance",
+    description: "Reports, forecasts, and investor-ready outputs.",
+    accent: "from-sky-500/15 via-indigo-500/10 to-violet-500/15",
+    badge: "Finance",
+    inputs: [
+      { label: "Artifact", options: ["Board Pack", "Runway Model", "Budget Plan"] },
+      { label: "Horizon", options: ["30 days", "Quarter", "Year"] },
+      { label: "Audience", options: ["Leadership", "Investors", "Finance team"] },
+    ],
   },
   {
-    id: "bpmn-diagram",
-    title: "BPMN Diagram",
-    summary: "Process map with roles, systems, and SLAs.",
-    type: "ops",
-    format: "Diagram + SOP",
-    signal: "Workflow logs",
+    key: "people",
+    label: "People / HR",
+    description: "Policies, hiring assets, and team enablement.",
+    accent: "from-fuchsia-500/15 via-pink-500/10 to-rose-500/15",
+    badge: "People",
+    inputs: [
+      { label: "Artifact", options: ["Recruitment Policy", "Offer Template", "Onboarding"] },
+      { label: "Level", options: ["IC", "Manager", "Executive"] },
+      { label: "Purpose", options: ["Hire", "Retain", "Develop"] },
+    ],
   },
   {
-    id: "nda-template",
-    title: "NDA Template",
-    summary: "Mutual NDA tuned to your risk profile.",
-    type: "legal",
-    format: "Docx + PDF",
-    signal: "Legal standards",
+    key: "support",
+    label: "Customer Support",
+    description: "Playbooks, scripts, and response kits.",
+    accent: "from-cyan-500/15 via-sky-500/10 to-blue-500/15",
+    badge: "Support",
+    inputs: [
+      { label: "Artifact", options: ["Macro Scripts", "Escalation SOP", "FAQ Pack"] },
+      { label: "Channel", options: ["Email", "Chat", "Phone", "In-app"] },
+      { label: "Goal", options: ["Deflect", "Resolve", "Upsell"] },
+    ],
   },
-];
-
-const generateTracks = [
-  { label: "Social + Growth", detail: "Posts, reels, campaigns, briefs" },
-  { label: "Operations", detail: "Policies, BPMN, SOPs, playbooks" },
-  { label: "Legal + Finance", detail: "Templates, memos, board packs" },
 ];
 
 function GenerateStudio({
-function DocumentGenerator({
- main
   onGenerate,
   seed,
 }: {
   onGenerate: (args: { type: string; tone: string; constraints: string }) => void;
   seed?: { type?: string; tone?: string; constraints?: string; key?: string };
 }) {
-codex/deploy-bat-app-to-github-and-vercel-kw47ze
-  const [selectedTemplate, setSelectedTemplate] = useState(generateTemplates[0].id);
+  const [selectedCategory, setSelectedCategory] = useState(
+    generationCategories[0].key
+  );
+  const [selectedInputs, setSelectedInputs] = useState<Record<string, string>>(() =>
+    generationCategories.reduce((acc, category) => {
+      category.inputs.forEach((input) => {
+        acc[`${category.key}:${input.label}`] = input.options[0];
+      });
+      return acc;
+    }, {} as Record<string, string>)
+  );
   const [prompt, setPrompt] = useState(
     "Generate a high-impact artifact using the last 30 days of data. Highlight insights, assets, and next actions."
-
-  const [type, setType] = useState("weekly_ops");
-  const [tone, setTone] = useState("executive");
-  const [constraints, setConstraints] = useState(
-    "Use last 7 days of data. Keep it under 1 page. Include risks + next actions."
- main
   );
 
   useEffect(() => {
     if (!seed) return;
-codex/deploy-bat-app-to-github-and-vercel-kw47ze
     if (seed.constraints) setPrompt(seed.constraints);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seed?.key]);
 
-  const activeTemplate =
-    generateTemplates.find((template) => template.id === selectedTemplate) ??
-    generateTemplates[0];
+  const activeCategory =
+    generationCategories.find((category) => category.key === selectedCategory) ??
+    generationCategories[0];
 
   return (
     <div className="space-y-6">
@@ -1019,79 +1014,147 @@ codex/deploy-bat-app-to-github-and-vercel-kw47ze
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="grid gap-3 md:grid-cols-3">
-            {generateTracks.map((track, index) => (
-              <motion.div
-                key={track.label}
+          <div className="grid gap-3 md:grid-cols-5">
+            {generationCategories.map((category, index) => (
+              <motion.button
+                key={category.key}
+                type="button"
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 * index }}
-                className="rounded-2xl border bg-muted/10 p-4"
+                transition={{ delay: 0.04 * index }}
+                onClick={() => setSelectedCategory(category.key)}
+                className={[
+                  "rounded-2xl border px-3 py-3 text-left transition-all",
+                  selectedCategory === category.key
+                    ? "border-primary/40 bg-primary/10 shadow-[0_0_18px_rgba(56,189,248,0.2)]"
+                    : "bg-background hover:border-primary/30",
+                ].join(" ")}
               >
-                <div className="text-sm font-semibold">{track.label}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{track.detail}</div>
-              </motion.div>
+                <div className="text-sm font-semibold">{category.label}</div>
+                <div className="mt-1 text-[11px] text-muted-foreground">
+                  {category.description}
+                </div>
+                <div className="mt-2">
+                  <Badge variant="secondary" className="rounded-full">
+                    {category.badge}
+                  </Badge>
+                </div>
+              </motion.button>
             ))}
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="space-y-3">
-              <div className="text-sm font-semibold">Pick a launch template</div>
-              <div className="grid gap-3 md:grid-cols-2">
-                {generateTemplates.map((template) => {
-                  const active = template.id === selectedTemplate;
-                  return (
-                    <motion.button
-                      key={template.id}
-                      type="button"
-                      whileHover={{ y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setSelectedTemplate(template.id)}
-                      className={[
-                        "rounded-2xl border p-4 text-left transition-all",
-                        active
-                          ? "border-primary/40 bg-primary/10 shadow-[0_0_25px_rgba(56,189,248,0.2)]"
-                          : "bg-background hover:border-primary/30",
-                      ].join(" ")}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="text-sm font-semibold">{template.title}</div>
-                          <div className="mt-1 text-xs text-muted-foreground">
-                            {template.summary}
-                          </div>
+          <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
+            <div className="space-y-4">
+              <div
+                className={[
+                  "rounded-3xl border p-5",
+                  "bg-gradient-to-br",
+                  activeCategory.accent,
+                ].join(" ")}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-base font-semibold">{activeCategory.label}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {activeCategory.description}
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="rounded-full">
+                    {activeCategory.badge}
+                  </Badge>
+                </div>
+
+                <div className="mt-4 grid gap-4 md:grid-cols-3">
+                  {activeCategory.inputs.map((input) => {
+                    const key = `${activeCategory.key}:${input.label}`;
+                    const selected = selectedInputs[key] ?? input.options[0];
+                    return (
+                      <div key={input.label} className="space-y-2">
+                        <div className="text-xs font-medium text-muted-foreground">
+                          {input.label}
                         </div>
-                        <Badge variant="secondary" className="rounded-full">
-                          {template.type}
-                        </Badge>
+                        <div className="flex flex-wrap gap-2">
+                          {input.options.map((option) => (
+                            <motion.button
+                              key={option}
+                              type="button"
+                              whileHover={{ y: -1 }}
+                              whileTap={{ scale: 0.97 }}
+                              onClick={() =>
+                                setSelectedInputs((prev) => ({
+                                  ...prev,
+                                  [key]: option,
+                                }))
+                              }
+                              className={[
+                                "rounded-full border px-3 py-1 text-xs transition-all",
+                                selected === option
+                                  ? "border-primary/50 bg-primary/20 text-foreground"
+                                  : "bg-background/60 text-muted-foreground",
+                              ].join(" ")}
+                            >
+                              {option}
+                            </motion.button>
+                          ))}
+                        </div>
                       </div>
-                      <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                        <Pill>{template.format}</Pill>
-                        <Pill>{template.signal}</Pill>
-                      </div>
-                    </motion.button>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border bg-background p-4 space-y-3">
+                <div className="text-sm font-semibold">Generation prompt</div>
+                <Textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="min-h-[110px] rounded-2xl"
+                  placeholder="Describe the artifact, audience, and success criteria..."
+                />
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                    <Lock className="h-4 w-4" /> Uses only sources you’ve approved.
+                  </div>
+                  <Button
+                    className="rounded-2xl"
+                    onClick={() => {
+                      const inputSummary = activeCategory.inputs
+                        .map(
+                          (input) =>
+                            `${input.label}: ${
+                              selectedInputs[`${activeCategory.key}:${input.label}`]
+                            }`
+                        )
+                        .join(" • ");
+                      onGenerate({
+                        type: `${activeCategory.label} • ${inputSummary}`,
+                        tone: activeCategory.label,
+                        constraints: prompt,
+                      });
+                    }}
+                  >
+                    <Sparkles className="mr-2 h-4 w-4" /> Launch generation
+                  </Button>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="text-sm font-semibold">Workspace controls</div>
+            <div className="space-y-4">
               <div className="rounded-2xl border bg-background p-4">
-                <div className="text-xs text-muted-foreground">Active template</div>
-                <div className="mt-2 text-base font-semibold">{activeTemplate.title}</div>
+                <div className="text-xs text-muted-foreground">Active category</div>
+                <div className="mt-2 text-base font-semibold">{activeCategory.label}</div>
                 <div className="mt-1 text-xs text-muted-foreground">
-                  {activeTemplate.summary}
+                  {activeCategory.description}
                 </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Badge variant="secondary" className="rounded-full">
-                    {activeTemplate.format}
-                  </Badge>
-                  <Badge variant="secondary" className="rounded-full">
-                    Source: {activeTemplate.signal}
-                  </Badge>
+                <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                  {activeCategory.inputs.map((input) => (
+                    <Pill key={input.label}>
+                      {selectedInputs[`${activeCategory.key}:${input.label}`]}
+                    </Pill>
+                  ))}
                 </div>
               </div>
+
               <div className="rounded-2xl border bg-background p-4">
                 <div className="text-xs text-muted-foreground">Output pack</div>
                 <div className="mt-2 space-y-2 text-sm">
@@ -1109,33 +1172,6 @@ codex/deploy-bat-app-to-github-and-vercel-kw47ze
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border bg-background p-4 space-y-3">
-            <div className="text-sm font-semibold">Generation brief</div>
-            <Textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              className="min-h-[110px] rounded-2xl"
-              placeholder="Describe the artifact, audience, and success criteria..."
-            />
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
-                <Lock className="h-4 w-4" /> Uses only sources you’ve approved.
-              </div>
-              <Button
-                className="rounded-2xl"
-                onClick={() =>
-                  onGenerate({
-                    type: activeTemplate.title,
-                    tone: activeTemplate.type,
-                    constraints: prompt,
-                  })
-                }
-              >
-                <Sparkles className="mr-2 h-4 w-4" /> Launch generation
-              </Button>
             </div>
           </div>
         </CardContent>
@@ -1216,92 +1252,6 @@ codex/deploy-bat-app-to-github-and-vercel-kw47ze
         </Card>
       </div>
     </div>
-    if (seed.type) setType(seed.type);
-    if (seed.tone) setTone(seed.tone);
-    if (seed.constraints) setConstraints(seed.constraints);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seed?.key]);
-
-  return (
-    <Card className="rounded-2xl shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-base">Generate a document</CardTitle>
-        <CardDescription>
-          Create reports, SOPs, briefs, and summaries from your BAT memory.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-3">
-          <div className="space-y-2">
-            <div className="text-xs font-medium text-muted-foreground">Document type</div>
-            <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="rounded-2xl">
-                <SelectValue placeholder="Choose" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="weekly_ops">Weekly Ops Memo</SelectItem>
-                <SelectItem value="kpi_review">KPI Review</SelectItem>
-                <SelectItem value="process_sop">Process SOP</SelectItem>
-                <SelectItem value="board_pack">Board Pack Summary</SelectItem>
-                <SelectItem value="sales_pipeline">Sales Pipeline Digest</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <div className="text-xs font-medium text-muted-foreground">Tone</div>
-            <Select value={tone} onValueChange={setTone}>
-              <SelectTrigger className="rounded-2xl">
-                <SelectValue placeholder="Choose" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="executive">Executive</SelectItem>
-                <SelectItem value="operator">Operator</SelectItem>
-                <SelectItem value="investor">Investor</SelectItem>
-                <SelectItem value="team">Team-friendly</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <div className="text-xs font-medium text-muted-foreground">Output</div>
-            <Select defaultValue="pdf">
-              <SelectTrigger className="rounded-2xl">
-                <SelectValue placeholder="Choose" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pdf">PDF</SelectItem>
-                <SelectItem value="docx">DOCX</SelectItem>
-                <SelectItem value="md">Markdown</SelectItem>
-                <SelectItem value="slides">Slides</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-xs font-medium text-muted-foreground">Constraints</div>
-          <Textarea
-            value={constraints}
-            onChange={(e) => setConstraints(e.target.value)}
-            className="min-h-[92px] rounded-2xl"
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
-            <Lock className="h-4 w-4" /> Uses only sources you’ve approved.
-          </div>
-          <Button
-            className="rounded-2xl"
-            onClick={() => onGenerate({ type, tone, constraints })}
-          >
-            <FileText className="mr-2 h-4 w-4" /> Generate
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-main
   );
 }
 
@@ -1350,13 +1300,6 @@ export default function BatTabPreview() {
     root.classList.toggle("dark", theme === "dark");
     window.localStorage.setItem("bat-theme", theme);
   }, [theme]);
-codex/deploy-bat-app-to-github-and-vercel-kw47ze
-
- codex/deploy-bat-app-to-github-and-vercel-2mwmqm
-
- main
-main
-main
 
   const [connected, setConnected] = useState<Record<AppKey, boolean>>({
     erp: true,
@@ -1594,12 +1537,6 @@ main
             setTheme((prev) => (prev === "dark" ? "light" : "dark"))
           }
         />
-codex/deploy-bat-app-to-github-and-vercel-kw47ze
-codex/deploy-bat-app-to-github-and-vercel-2mwmqm
-        <TopBar tier="Premium" />
- main
-main
-main
 
         {/* Global dialogs */}
         <Dialog open={apiOpen} onOpenChange={setApiOpen}>
@@ -1806,11 +1743,7 @@ main
                     title="Generate"
                     subtitle="Create reports, SOPs, briefs, and summaries from BAT memory."
                   />
-codex/deploy-bat-app-to-github-and-vercel-kw47ze
                   <GenerateStudio onGenerate={onGenerateDoc} seed={genSeed} />
-
-                  <DocumentGenerator onGenerate={onGenerateDoc} seed={genSeed} />
-                  main
                 </motion.div>
               ) : null}
 

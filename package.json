@@ -2,9 +2,11 @@
   "name": "bat",
   "private": true,
   "version": "0.0.0",
+  "packageManager": "npm@10.8.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/strip-conflicts.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },
