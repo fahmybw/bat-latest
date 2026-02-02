@@ -900,7 +900,7 @@ function NotificationRow({
   );
 }
 
-const generateTemplates = [
+const generationCategories = [
   {
     key: "marketing",
     label: "Marketing",
@@ -1090,7 +1090,32 @@ function GenerateStudio({
   onGenerate: (args: { type: string; tone: string; constraints: string }) => void;
   seed?: { type?: string; tone?: string; constraints?: string; key?: string };
 }) {
-  const [selectedTemplate, setSelectedTemplate] = useState(generateTemplates[0].id);
+  const [selectedCategory, setSelectedCategory] = useState(
+    generationCategories[0].key
+  );
+  const [selectedInputs, setSelectedInputs] = useState<Record<string, string>>(() =>
+    generationCategories.reduce((acc, category) => {
+      category.inputs.forEach((input) => {
+        acc[`${category.key}:${input.label}`] = input.options[0];
+      });
+      return acc;
+    }, {} as Record<string, string>)
+  );
+  const safeSelectedInputs = useMemo(() => {
+    const next = { ...selectedInputs };
+    generationCategories.forEach((category) => {
+      category.inputs.forEach((input) => {
+        const key = `${category.key}:${input.label}`;
+        if (!next[key]) {
+          next[key] = input.options[0];
+        }
+      });
+    });
+    return next;
+  }, [selectedInputs]);
+  const [inputQuery, setInputQuery] = useState<Record<string, string>>({});
+  const [expandedInputs, setExpandedInputs] = useState<Record<string, boolean>>({});
+  const [activeField, setActiveField] = useState<string | null>(null);
   const [prompt, setPrompt] = useState(
     "Generate a high-impact artifact using the last 30 days of data. Highlight insights, assets, and next actions."
   );
@@ -1171,85 +1196,132 @@ function GenerateStudio({
                   </Badge>
                 </div>
 
-                <div className="mt-4 grid gap-4 md:grid-cols-3">
-                  {activeCategory.inputs.map((input) => {
-                    const key = `${activeCategory.key}:${input.label}`;
-                    const selected = selectedInputs[key] ?? input.options[0];
-                    const query = inputQuery[key] ?? "";
-                    const filteredOptions = input.options.filter((option) =>
-                      option.toLowerCase().includes(query.trim().toLowerCase())
-                    );
-                    const showAll = expandedInputs[key] ?? false;
-                    const visibleOptions = showAll
-                      ? filteredOptions
-                      : filteredOptions.slice(0, 12);
-                    return (
-                      <div key={input.label} className="space-y-2">
-                        <div className="text-xs font-medium text-muted-foreground">
-                          {input.label}
-                        </div>
-                        <div className="flex items-center gap-2 rounded-2xl border bg-background/70 px-3 py-2 text-xs">
-                          <Search className="h-3.5 w-3.5 text-muted-foreground" />
-                          <input
-                            value={query}
-                            onChange={(e) =>
-                              setInputQuery((prev) => ({
-                                ...prev,
-                                [key]: e.target.value,
-                              }))
-                            }
-                            placeholder={`Search ${input.label.toLowerCase()}…`}
-                            className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                          />
-                        </div>
-                        <div className="rounded-2xl border bg-background/60 p-2">
-                          <div className="flex flex-wrap gap-2">
-                            {visibleOptions.map((option) => (
-                              <motion.button
-                                key={option}
-                                type="button"
-                                whileHover={{ y: -1 }}
-                                whileTap={{ scale: 0.97 }}
-                                onClick={() =>
-                                  setSelectedInputs((prev) => ({
-                                    ...prev,
-                                    [key]: option,
-                                  }))
-                                }
-                                className={[
-                                  "rounded-full border px-3 py-1 text-xs transition-all",
-                                  selected === option
-                                    ? "border-primary/50 bg-primary/20 text-foreground"
-                                    : "bg-background/60 text-muted-foreground",
-                                ].join(" ")}
-                              >
-                                {option}
-                              </motion.button>
-                            ))}
-                            {filteredOptions.length === 0 ? (
-                              <div className="text-xs text-muted-foreground">
-                                No matches. Try another keyword.
+                <div className="mt-4 space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    {activeCategory.inputs.map((input) => {
+                      const key = `${activeCategory.key}:${input.label}`;
+                      return (
+                        <Pill key={input.label}>
+                          {input.label}: {safeSelectedInputs[key]}
+                        </Pill>
+                      );
+                    })}
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {activeCategory.inputs.map((input) => {
+                      const key = `${activeCategory.key}:${input.label}`;
+                      const selected = safeSelectedInputs[key] ?? input.options[0];
+                      const query = inputQuery[key] ?? "";
+                      const filteredOptions = input.options.filter((option) =>
+                        option.toLowerCase().includes(query.trim().toLowerCase())
+                      );
+                      const showAll = expandedInputs[key] ?? false;
+                      const visibleOptions = showAll
+                        ? filteredOptions
+                        : filteredOptions.slice(0, 10);
+                      const isOpen = activeField === key;
+
+                      return (
+                        <div
+                          key={input.label}
+                          className="rounded-2xl border bg-background/60 p-3"
+                        >
+                          <button
+                            type="button"
+                            className="flex w-full items-center justify-between text-left"
+                            onClick={() => setActiveField(isOpen ? null : key)}
+                          >
+                            <div>
+                              <div className="text-xs font-medium text-muted-foreground">
+                                {input.label}
                               </div>
+                              <div className="mt-1 text-sm font-semibold">{selected}</div>
+                            </div>
+                            <ChevronRight
+                              className={[
+                                "h-4 w-4 text-muted-foreground transition-transform",
+                                isOpen ? "rotate-90" : "",
+                              ].join(" ")}
+                            />
+                          </button>
+
+                          <AnimatePresence initial={false}>
+                            {isOpen ? (
+                              <motion.div
+                                key={`${key}-panel`}
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-3 space-y-3">
+                                  <div className="flex items-center gap-2 rounded-2xl border bg-background/70 px-3 py-2 text-xs">
+                                    <Search className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <input
+                                      value={query}
+                                      onChange={(e) =>
+                                        setInputQuery((prev) => ({
+                                          ...prev,
+                                          [key]: e.target.value,
+                                        }))
+                                      }
+                                      placeholder={`Search ${input.label.toLowerCase()}…`}
+                                      className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                                    />
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {visibleOptions.map((option) => (
+                                      <motion.button
+                                        key={option}
+                                        type="button"
+                                        whileHover={{ y: -1 }}
+                                        whileTap={{ scale: 0.97 }}
+                                        onClick={() =>
+                                          setSelectedInputs((prev) => ({
+                                            ...prev,
+                                            [key]: option,
+                                          }))
+                                        }
+                                        className={[
+                                          "rounded-full border px-3 py-1 text-xs transition-all",
+                                          selected === option
+                                            ? "border-primary/50 bg-primary/20 text-foreground"
+                                            : "bg-background/60 text-muted-foreground",
+                                        ].join(" ")}
+                                      >
+                                        {option}
+                                      </motion.button>
+                                    ))}
+                                    {filteredOptions.length === 0 ? (
+                                      <div className="text-xs text-muted-foreground">
+                                        No matches. Try another keyword.
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                  {filteredOptions.length > 10 ? (
+                                    <button
+                                      type="button"
+                                      className="text-xs text-muted-foreground hover:text-foreground"
+                                      onClick={() =>
+                                        setExpandedInputs((prev) => ({
+                                          ...prev,
+                                          [key]: !showAll,
+                                        }))
+                                      }
+                                    >
+                                      {showAll ? "Show fewer" : "Show all options"}
+                                    </button>
+                                  ) : null}
+                                </div>
+                              </motion.div>
                             ) : null}
-                          </div>
-                          {filteredOptions.length > 12 ? (
-                            <button
-                              type="button"
-                              className="mt-2 text-xs text-muted-foreground hover:text-foreground"
-                              onClick={() =>
-                                setExpandedInputs((prev) => ({
-                                  ...prev,
-                                  [key]: !showAll,
-                                }))
-                              }
-                            >
-                              {showAll ? "Show fewer" : "Show all options"}
-                            </button>
-                          ) : null}
+                          </AnimatePresence>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -1272,7 +1344,7 @@ function GenerateStudio({
                         .map(
                           (input) =>
                             `${input.label}: ${
-                              selectedInputs[`${activeCategory.key}:${input.label}`]
+                              safeSelectedInputs[`${activeCategory.key}:${input.label}`]
                             }`
                         )
                         .join(" • ");
@@ -1299,7 +1371,7 @@ function GenerateStudio({
                 <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                   {activeCategory.inputs.map((input) => (
                     <Pill key={input.label}>
-                      {selectedInputs[`${activeCategory.key}:${input.label}`]}
+                      {safeSelectedInputs[`${activeCategory.key}:${input.label}`]}
                     </Pill>
                   ))}
                 </div>
