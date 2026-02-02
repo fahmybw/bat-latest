@@ -62,12 +62,14 @@ import {
   Workflow,
   X,
   Moon,
+ codex/deploy-bat-app-to-github-and-vercel-kw47ze
 codex/deploy-bat-app-to-github-and-vercel-2mwmqm
   Upload,
   Workflow,
   X,
 main
 main
+ main
 } from "lucide-react";
 import {
   Area,
@@ -417,12 +419,12 @@ function TopBar({
   onToggleTheme: () => void;
 }) {
   const isDark = theme === "dark";
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
 codex/deploy-bat-app-to-github-and-vercel-2mwmqm
-
-
 function TopBar({ tier = "Premium" }: { tier?: string }) {
  main
 main
+ main
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
@@ -462,8 +464,11 @@ main
             </>
           )}
         </Button>
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
+
 codex/deploy-bat-app-to-github-and-vercel-2mwmqm
 
+main
 main
 main
         <DropdownMenu>
@@ -916,21 +921,301 @@ function NotificationRow({
   );
 }
 
+ codex/deploy-bat-app-to-github-and-vercel-kw47ze
+const generateTemplates = [
+  {
+    id: "social-reel",
+    title: "Instagram Reel",
+    summary: "30s competitor breakdown with hooks + CTA.",
+    type: "social",
+    format: "Video storyboard",
+    signal: "Competitors",
+  },
+  {
+    id: "viral-linkedin",
+    title: "LinkedIn Growth Post",
+    summary: "Founder POV, strong hook, punchy CTA.",
+    type: "social",
+    format: "Post + carousel",
+    signal: "Audience insights",
+  },
+  {
+    id: "recruitment-policy",
+    title: "Recruitment Policy",
+    summary: "End-to-end hiring workflow + guardrails.",
+    type: "ops",
+    format: "Policy doc",
+    signal: "HR + Ops",
+  },
+  {
+    id: "bpmn-diagram",
+    title: "BPMN Diagram",
+    summary: "Process map with roles, systems, and SLAs.",
+    type: "ops",
+    format: "Diagram + SOP",
+    signal: "Workflow logs",
+  },
+  {
+    id: "nda-template",
+    title: "NDA Template",
+    summary: "Mutual NDA tuned to your risk profile.",
+    type: "legal",
+    format: "Docx + PDF",
+    signal: "Legal standards",
+  },
+];
+
+const generateTracks = [
+  { label: "Social + Growth", detail: "Posts, reels, campaigns, briefs" },
+  { label: "Operations", detail: "Policies, BPMN, SOPs, playbooks" },
+  { label: "Legal + Finance", detail: "Templates, memos, board packs" },
+];
+
+function GenerateStudio({
 function DocumentGenerator({
+ main
   onGenerate,
   seed,
 }: {
   onGenerate: (args: { type: string; tone: string; constraints: string }) => void;
   seed?: { type?: string; tone?: string; constraints?: string; key?: string };
 }) {
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
+  const [selectedTemplate, setSelectedTemplate] = useState(generateTemplates[0].id);
+  const [prompt, setPrompt] = useState(
+    "Generate a high-impact artifact using the last 30 days of data. Highlight insights, assets, and next actions."
+
   const [type, setType] = useState("weekly_ops");
   const [tone, setTone] = useState("executive");
   const [constraints, setConstraints] = useState(
     "Use last 7 days of data. Keep it under 1 page. Include risks + next actions."
+ main
   );
 
   useEffect(() => {
     if (!seed) return;
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
+    if (seed.constraints) setPrompt(seed.constraints);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seed?.key]);
+
+  const activeTemplate =
+    generateTemplates.find((template) => template.id === selectedTemplate) ??
+    generateTemplates[0];
+
+  return (
+    <div className="space-y-6">
+      <Card className="relative overflow-hidden rounded-3xl border bg-background shadow-[0_0_35px_rgba(56,189,248,0.12)]">
+        <motion.div
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500/10 via-indigo-500/10 to-fuchsia-500/10"
+          animate={{ opacity: [0.45, 0.8, 0.45] }}
+          transition={{ duration: 6, repeat: Infinity }}
+        />
+        <CardHeader className="gap-2">
+          <CardTitle className="text-xl">Generate anything</CardTitle>
+          <CardDescription>
+            BAT Studio turns your data and memory into media, policies, diagrams, and
+            execution-ready artifacts.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="grid gap-3 md:grid-cols-3">
+            {generateTracks.map((track, index) => (
+              <motion.div
+                key={track.label}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 * index }}
+                className="rounded-2xl border bg-muted/10 p-4"
+              >
+                <div className="text-sm font-semibold">{track.label}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{track.detail}</div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="space-y-3">
+              <div className="text-sm font-semibold">Pick a launch template</div>
+              <div className="grid gap-3 md:grid-cols-2">
+                {generateTemplates.map((template) => {
+                  const active = template.id === selectedTemplate;
+                  return (
+                    <motion.button
+                      key={template.id}
+                      type="button"
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setSelectedTemplate(template.id)}
+                      className={[
+                        "rounded-2xl border p-4 text-left transition-all",
+                        active
+                          ? "border-primary/40 bg-primary/10 shadow-[0_0_25px_rgba(56,189,248,0.2)]"
+                          : "bg-background hover:border-primary/30",
+                      ].join(" ")}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="text-sm font-semibold">{template.title}</div>
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            {template.summary}
+                          </div>
+                        </div>
+                        <Badge variant="secondary" className="rounded-full">
+                          {template.type}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                        <Pill>{template.format}</Pill>
+                        <Pill>{template.signal}</Pill>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="text-sm font-semibold">Workspace controls</div>
+              <div className="rounded-2xl border bg-background p-4">
+                <div className="text-xs text-muted-foreground">Active template</div>
+                <div className="mt-2 text-base font-semibold">{activeTemplate.title}</div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  {activeTemplate.summary}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="rounded-full">
+                    {activeTemplate.format}
+                  </Badge>
+                  <Badge variant="secondary" className="rounded-full">
+                    Source: {activeTemplate.signal}
+                  </Badge>
+                </div>
+              </div>
+              <div className="rounded-2xl border bg-background p-4">
+                <div className="text-xs text-muted-foreground">Output pack</div>
+                <div className="mt-2 space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span>Primary artifact</span>
+                    <span className="text-muted-foreground">Draft</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Key assets</span>
+                    <span className="text-muted-foreground">3 visuals</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Distribution plan</span>
+                    <span className="text-muted-foreground">Timeline</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border bg-background p-4 space-y-3">
+            <div className="text-sm font-semibold">Generation brief</div>
+            <Textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="min-h-[110px] rounded-2xl"
+              placeholder="Describe the artifact, audience, and success criteria..."
+            />
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                <Lock className="h-4 w-4" /> Uses only sources you’ve approved.
+              </div>
+              <Button
+                className="rounded-2xl"
+                onClick={() =>
+                  onGenerate({
+                    type: activeTemplate.title,
+                    tone: activeTemplate.type,
+                    constraints: prompt,
+                  })
+                }
+              >
+                <Sparkles className="mr-2 h-4 w-4" /> Launch generation
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Live output stream</CardTitle>
+            <CardDescription>Watch the workspace fill as BAT creates artifacts.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              {
+                title: "Storyboards + hooks",
+                detail: "3 narrative options generated from competitor analysis.",
+                status: "Ready",
+              },
+              {
+                title: "Draft artifact",
+                detail: "Primary output assembled with brand tone + CTA.",
+                status: "In progress",
+              },
+              {
+                title: "Distribution plan",
+                detail: "Release cadence + channel checklist.",
+                status: "Queued",
+              },
+            ].map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 * index }}
+                className="flex items-start justify-between gap-3 rounded-2xl border bg-muted/10 p-4"
+              >
+                <div>
+                  <div className="text-sm font-semibold">{item.title}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{item.detail}</div>
+                </div>
+                <Badge variant="secondary" className="rounded-full">
+                  {item.status}
+                </Badge>
+              </motion.div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Access generated assets</CardTitle>
+            <CardDescription>Everything is organized by channel and format.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              { label: "Social media kit", meta: "Reel + captions + thumbnails" },
+              { label: "Operations pack", meta: "Policy + BPMN diagram" },
+              { label: "Legal templates", meta: "NDA + annexes" },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="flex items-center justify-between rounded-2xl border bg-background p-3"
+              >
+                <div>
+                  <div className="text-sm font-semibold">{item.label}</div>
+                  <div className="text-xs text-muted-foreground">{item.meta}</div>
+                </div>
+                <Button variant="ghost" className="rounded-2xl">
+                  Open <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+            <div className="rounded-2xl border bg-muted/10 p-3 text-xs text-muted-foreground">
+              BAT keeps source data, intermediate drafts, and final artifacts in a single
+              workspace so teams can review and ship faster.
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
     if (seed.type) setType(seed.type);
     if (seed.tone) setTone(seed.tone);
     if (seed.constraints) setConstraints(seed.constraints);
@@ -1016,6 +1301,7 @@ function DocumentGenerator({
         </div>
       </CardContent>
     </Card>
+main
   );
 }
 
@@ -1064,9 +1350,12 @@ export default function BatTabPreview() {
     root.classList.toggle("dark", theme === "dark");
     window.localStorage.setItem("bat-theme", theme);
   }, [theme]);
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
+
  codex/deploy-bat-app-to-github-and-vercel-2mwmqm
 
  main
+main
 main
 
   const [connected, setConnected] = useState<Record<AppKey, boolean>>({
@@ -1305,9 +1594,11 @@ main
             setTheme((prev) => (prev === "dark" ? "light" : "dark"))
           }
         />
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
 codex/deploy-bat-app-to-github-and-vercel-2mwmqm
         <TopBar tier="Premium" />
  main
+main
 main
 
         {/* Global dialogs */}
@@ -1515,7 +1806,11 @@ main
                     title="Generate"
                     subtitle="Create reports, SOPs, briefs, and summaries from BAT memory."
                   />
+codex/deploy-bat-app-to-github-and-vercel-kw47ze
+                  <GenerateStudio onGenerate={onGenerateDoc} seed={genSeed} />
+
                   <DocumentGenerator onGenerate={onGenerateDoc} seed={genSeed} />
+                  main
                 </motion.div>
               ) : null}
 
