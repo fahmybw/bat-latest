@@ -908,11 +908,128 @@ const generationCategories = [
     accent: "from-amber-500/15 via-orange-500/10 to-rose-500/15",
     badge: "Growth",
     inputs: [
-      { label: "Channel", options: ["LinkedIn", "Instagram", "TikTok", "Email"] },
-      { label: "Artifact", options: ["Post", "Reel", "Carousel", "Ad Copy"] },
+      {
+        label: "Channel",
+        options: [
+          "LinkedIn",
+          "Instagram",
+          "TikTok",
+          "YouTube",
+          "X / Twitter",
+          "Facebook",
+          "Reddit",
+          "Pinterest",
+          "Snapchat",
+          "WhatsApp",
+          "Telegram",
+          "Discord",
+          "Slack community",
+          "Substack",
+          "Medium",
+          "Blog",
+          "Newsletter",
+          "Email",
+          "SMS",
+          "Push",
+          "In-app",
+          "Product Hunt",
+          "Hacker News",
+          "Indie Hackers",
+          "Quora",
+          "Stack Overflow",
+          "GitHub",
+          "Behance",
+          "Dribbble",
+          "Figma community",
+          "App Store",
+          "Google Play",
+          "G2",
+          "Capterra",
+          "Trustpilot",
+          "Yelp",
+          "Google Reviews",
+          "Glassdoor",
+          "Indeed",
+          "AngelList",
+          "Wellfound",
+          "Crunchbase",
+          "Forbes",
+          "TechCrunch",
+          "The Verge",
+          "NYTimes",
+          "WSJ",
+          "FT",
+          "Bloomberg",
+          "Wired",
+          "Podcasts",
+          "Webinars",
+          "Events",
+          "Conferences",
+          "Meetups",
+          "Community forums",
+          "Partnerships",
+          "Affiliate",
+          "Influencers",
+          "Creator collabs",
+          "UGC",
+          "SEO",
+          "Paid Search",
+          "Display Ads",
+          "Retargeting",
+          "CTV",
+          "OTT",
+          "OOH",
+          "Print",
+          "Radio",
+          "TV",
+          "Direct mail",
+          "Cold email",
+          "Cold call",
+          "Field marketing",
+          "Account-based",
+          "Sales enablement",
+          "Customer marketing",
+          "Referral",
+          "Review sites",
+          "Marketplaces",
+          "App marketplaces",
+          "Channel partners",
+        ],
+      },
+      {
+        label: "Artifact",
+        options: [
+          "Post",
+          "Reel",
+          "Carousel",
+          "Short video",
+          "Long-form video",
+          "Ad Copy",
+          "Landing page",
+          "Lead magnet",
+          "Case study",
+          "Press release",
+          "Campaign brief",
+          "Creative brief",
+          "A/B test plan",
+          "Audience persona",
+          "Competitor teardown",
+        ],
+      },
       {
         label: "Purpose",
-        options: ["Lead gen", "Thought leadership", "Launch", "Recruiting"],
+        options: [
+          "Lead gen",
+          "Thought leadership",
+          "Launch",
+          "Recruiting",
+          "Community growth",
+          "Brand awareness",
+          "Activation",
+          "Retention",
+          "Upsell",
+          "Churn save",
+        ],
       },
     ],
   },
@@ -984,6 +1101,7 @@ function GenerateStudio({
       return acc;
     }, {} as Record<string, string>)
   );
+  const [inputQuery, setInputQuery] = useState<Record<string, string>>({});
   const [prompt, setPrompt] = useState(
     "Generate a high-impact artifact using the last 30 days of data. Highlight insights, assets, and next actions."
   );
@@ -1068,34 +1186,53 @@ function GenerateStudio({
                   {activeCategory.inputs.map((input) => {
                     const key = `${activeCategory.key}:${input.label}`;
                     const selected = selectedInputs[key] ?? input.options[0];
+                    const query = inputQuery[key] ?? "";
+                    const filteredOptions = input.options.filter((option) =>
+                      option.toLowerCase().includes(query.trim().toLowerCase())
+                    );
                     return (
                       <div key={input.label} className="space-y-2">
                         <div className="text-xs font-medium text-muted-foreground">
                           {input.label}
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          {input.options.map((option) => (
-                            <motion.button
-                              key={option}
-                              type="button"
-                              whileHover={{ y: -1 }}
-                              whileTap={{ scale: 0.97 }}
-                              onClick={() =>
-                                setSelectedInputs((prev) => ({
-                                  ...prev,
-                                  [key]: option,
-                                }))
-                              }
-                              className={[
-                                "rounded-full border px-3 py-1 text-xs transition-all",
-                                selected === option
-                                  ? "border-primary/50 bg-primary/20 text-foreground"
-                                  : "bg-background/60 text-muted-foreground",
-                              ].join(" ")}
-                            >
-                              {option}
-                            </motion.button>
-                          ))}
+                        <Input
+                          value={query}
+                          onChange={(e) =>
+                            setInputQuery((prev) => ({ ...prev, [key]: e.target.value }))
+                          }
+                          placeholder={`Search ${input.label.toLowerCase()}…`}
+                          className="h-9 rounded-2xl bg-background/70"
+                        />
+                        <div className="max-h-32 overflow-auto rounded-2xl border bg-background/60 p-2">
+                          <div className="flex flex-wrap gap-2">
+                            {filteredOptions.map((option) => (
+                              <motion.button
+                                key={option}
+                                type="button"
+                                whileHover={{ y: -1 }}
+                                whileTap={{ scale: 0.97 }}
+                                onClick={() =>
+                                  setSelectedInputs((prev) => ({
+                                    ...prev,
+                                    [key]: option,
+                                  }))
+                                }
+                                className={[
+                                  "rounded-full border px-3 py-1 text-xs transition-all",
+                                  selected === option
+                                    ? "border-primary/50 bg-primary/20 text-foreground"
+                                    : "bg-background/60 text-muted-foreground",
+                                ].join(" ")}
+                              >
+                                {option}
+                              </motion.button>
+                            ))}
+                            {filteredOptions.length === 0 ? (
+                              <div className="text-xs text-muted-foreground">
+                                No matches. Try another keyword.
+                              </div>
+                            ) : null}
+                          </div>
                         </div>
                       </div>
                     );
