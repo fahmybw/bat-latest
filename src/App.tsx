@@ -1102,6 +1102,7 @@ function GenerateStudio({
     }, {} as Record<string, string>)
   );
   const [inputQuery, setInputQuery] = useState<Record<string, string>>({});
+  const [expandedInputs, setExpandedInputs] = useState<Record<string, boolean>>({});
   const [prompt, setPrompt] = useState(
     "Generate a high-impact artifact using the last 30 days of data. Highlight insights, assets, and next actions."
   );
@@ -1190,22 +1191,32 @@ function GenerateStudio({
                     const filteredOptions = input.options.filter((option) =>
                       option.toLowerCase().includes(query.trim().toLowerCase())
                     );
+                    const showAll = expandedInputs[key] ?? false;
+                    const visibleOptions = showAll
+                      ? filteredOptions
+                      : filteredOptions.slice(0, 12);
                     return (
                       <div key={input.label} className="space-y-2">
                         <div className="text-xs font-medium text-muted-foreground">
                           {input.label}
                         </div>
-                        <Input
-                          value={query}
-                          onChange={(e) =>
-                            setInputQuery((prev) => ({ ...prev, [key]: e.target.value }))
-                          }
-                          placeholder={`Search ${input.label.toLowerCase()}…`}
-                          className="h-9 rounded-2xl bg-background/70"
-                        />
-                        <div className="max-h-32 overflow-auto rounded-2xl border bg-background/60 p-2">
+                        <div className="flex items-center gap-2 rounded-2xl border bg-background/70 px-3 py-2 text-xs">
+                          <Search className="h-3.5 w-3.5 text-muted-foreground" />
+                          <input
+                            value={query}
+                            onChange={(e) =>
+                              setInputQuery((prev) => ({
+                                ...prev,
+                                [key]: e.target.value,
+                              }))
+                            }
+                            placeholder={`Search ${input.label.toLowerCase()}…`}
+                            className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                          />
+                        </div>
+                        <div className="rounded-2xl border bg-background/60 p-2">
                           <div className="flex flex-wrap gap-2">
-                            {filteredOptions.map((option) => (
+                            {visibleOptions.map((option) => (
                               <motion.button
                                 key={option}
                                 type="button"
@@ -1233,6 +1244,20 @@ function GenerateStudio({
                               </div>
                             ) : null}
                           </div>
+                          {filteredOptions.length > 12 ? (
+                            <button
+                              type="button"
+                              className="mt-2 text-xs text-muted-foreground hover:text-foreground"
+                              onClick={() =>
+                                setExpandedInputs((prev) => ({
+                                  ...prev,
+                                  [key]: !showAll,
+                                }))
+                              }
+                            >
+                              {showAll ? "Show fewer" : "Show all options"}
+                            </button>
+                          ) : null}
                         </div>
                       </div>
                     );
