@@ -1389,62 +1389,48 @@ const channelMix = [
 ];
 
 function ContentCalendar() {
-  const [plan, setPlan] = useState("monthly");
   const [purpose, setPurpose] = useState("Audience growth + product launch");
   const [platforms, setPlatforms] = useState({
     instagram: true,
     tiktok: true,
     youtube: true,
     linkedin: false,
-    x: false,
   });
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-
-  const activePlan = calendarPlans.find((p) => p.key === plan) ?? calendarPlans[1];
-  const totalSteps = 4;
 
   const recommendations = [
     {
       channel: "Instagram",
       count: 8,
       mix: "4 Reels • 3 Carousels • 1 Story pack",
-      script:
-        "Hook: \"3 mistakes brands make on Reels\" → Value bullets → CTA to follow for weekly tips.",
     },
     {
       channel: "YouTube",
       count: 4,
       mix: "2 Long-form • 2 Shorts",
-      script:
-        "Open loop: \"We spent $5K testing hooks\" → Show results → CTA to subscribe.",
     },
     {
       channel: "TikTok",
       count: 6,
       mix: "3 Trends • 2 UGC • 1 Stitch",
-      script: "POV: \"Your ad is good, your first 2 seconds aren’t\" → Fixes.",
     },
   ];
 
   const approvalQueue = [
     {
-      title: "Instagram Reel — Hook pack A",
+      title: "Hook pack A",
+      platform: "Instagram",
       status: "Ready for approval",
-      script:
-        "Hook: \"Stop scrolling if you’re stuck at 1% engagement\" → 3 fixes → CTA.",
-      creative: "Neon green text overlay + fast cuts.",
     },
     {
-      title: "YouTube Long-form — Episode 4",
+      title: "Episode 4 script",
+      platform: "YouTube",
       status: "Draft ready",
-      script: "Title: \"We rebuilt a 7-figure content engine\" → 5-part breakdown.",
-      creative: "Thumbnail: split screen before/after, lime CTA badge.",
     },
     {
-      title: "TikTok Trend — Remix",
+      title: "Trend remix",
+      platform: "TikTok",
       status: "Needs review",
-      script: "Trend audio with on-screen captions + quick stats callouts.",
-      creative: "CapCut template with brand watermark.",
     },
   ];
 
@@ -1463,257 +1449,211 @@ function ContentCalendar() {
           animate={{ opacity: [0.45, 0.8, 0.45] }}
           transition={{ duration: 6, repeat: Infinity }}
         />
-        <CardHeader className="gap-2">
-          <CardTitle className="text-xl">Content Calendar Command</CardTitle>
-          <CardDescription>
-            Guided workflow to define the goal, approve the content, and auto-schedule
-            everything.
-          </CardDescription>
+        <CardHeader className="gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <CardTitle className="text-xl">Content Calendar</CardTitle>
+              <CardDescription>
+                Build your schedule, approve assets, and publish with confidence.
+              </CardDescription>
+            </div>
+            <Button className="rounded-2xl">
+              <Calendar className="mr-2 h-4 w-4" /> New Schedule
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="grid gap-4 lg:grid-cols-[0.5fr_1fr]">
-            <div className="space-y-4">
-              <div className="rounded-2xl border bg-background/70 p-4">
-                <div className="text-sm font-semibold">Workflow</div>
-                <div className="mt-2 text-xs text-muted-foreground">
-                  Step {step} of {totalSteps}
-                </div>
-                <Progress className="mt-3" value={(step / totalSteps) * 100} />
-                <div className="mt-4 space-y-2">
-                  {[
-                    {
-                      id: 1,
-                      title: "Purpose + platforms",
-                      detail: "Set objectives and channels.",
-                    },
-                    {
-                      id: 2,
-                      title: "BAT recommends",
-                      detail: "Mix, counts, scripts.",
-                    },
-                    {
-                      id: 3,
-                      title: "Approve content",
-                      detail: "Preview + approve.",
-                    },
-                    {
-                      id: 4,
-                      title: "Scheduled",
-                      detail: "Publishing locked in.",
-                    },
-                  ].map((item) => {
-                    const active = step === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => setStep(item.id as 1 | 2 | 3 | 4)}
-                        className={[
-                          "w-full rounded-2xl border px-3 py-3 text-left transition-all",
-                          active
-                            ? "border-primary/50 bg-primary/15 shadow-[0_0_18px_rgba(163,230,53,0.25)]"
-                            : "bg-background/60 hover:border-primary/30",
-                        ].join(" ")}
-                      >
-                        <div className="text-xs text-muted-foreground">Step {item.id}</div>
-                        <div className="mt-1 text-sm font-semibold">{item.title}</div>
-                        <div className="mt-1 text-xs text-muted-foreground">{item.detail}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { id: 1, label: "Goal & Channels" },
+              { id: 2, label: "Recommended Mix" },
+              { id: 3, label: "Approvals" },
+              { id: 4, label: "Scheduled Content" },
+            ].map((item) => {
+              const active = step === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setStep(item.id as 1 | 2 | 3 | 4)}
+                  className={[
+                    "flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all",
+                    active
+                      ? "border-primary/50 bg-primary/15 shadow-[0_0_18px_rgba(163,230,53,0.25)]"
+                      : "bg-background/60 hover:border-primary/30",
+                  ].join(" ")}
+                >
+                  <span
+                    className={[
+                      "inline-flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold",
+                      active ? "border-primary/50 bg-primary text-primary-foreground" : "",
+                    ].join(" ")}
+                  >
+                    {item.id}
+                  </span>
+                  <span className="text-sm font-semibold">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
 
-              <div className="rounded-2xl border bg-background/70 p-4">
-                <div className="text-sm font-semibold">Calendar scope</div>
-                <div className="mt-3 space-y-2">
-                  {calendarPlans.map((item) => (
-                    <button
-                      key={item.key}
-                      type="button"
-                      onClick={() => setPlan(item.key)}
-                      className={[
-                        "flex w-full items-center justify-between rounded-2xl border px-3 py-2 text-left text-sm transition-all",
-                        plan === item.key
-                          ? "border-primary/50 bg-primary/15"
-                          : "bg-background/60 hover:border-primary/30",
-                      ].join(" ")}
-                    >
-                      <span>{item.label}</span>
-                      <span className="text-xs text-muted-foreground">{item.cadence}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {step === 1 ? (
-                <Card className="rounded-2xl border bg-background/70">
-                  <CardHeader>
-                    <CardTitle className="text-base">1) Purpose + platforms</CardTitle>
-                    <CardDescription>
-                      Tell BAT the objective and the channels to activate.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="text-xs font-medium text-muted-foreground">
-                        Purpose
-                      </div>
-                      <Textarea
-                        value={purpose}
-                        onChange={(e) => setPurpose(e.target.value)}
-                        className="min-h-[90px] rounded-2xl"
-                        placeholder="Audience growth, product launch, community engagement..."
-                      />
+          <div className="space-y-4">
+            {step === 1 ? (
+              <Card className="rounded-2xl border bg-background/70">
+                <CardHeader>
+                  <CardTitle className="text-base">Goal & channels</CardTitle>
+                  <CardDescription>
+                    Describe Goal and desired platforms.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="text-xs font-medium text-muted-foreground">
+                      Purpose
                     </div>
-                    <div className="grid gap-2 md:grid-cols-2">
-                      {[
-                        { key: "instagram", label: "Instagram" },
-                        { key: "tiktok", label: "TikTok" },
-                        { key: "youtube", label: "YouTube" },
-                        { key: "linkedin", label: "LinkedIn" },
-                        { key: "x", label: "X / Twitter" },
-                      ].map((item) => (
-                        <label
+                    <Textarea
+                      value={purpose}
+                      onChange={(e) => setPurpose(e.target.value)}
+                      className="min-h-[90px] rounded-2xl"
+                      placeholder="Audience growth, product launch, community engagement..."
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { key: "instagram", label: "Instagram" },
+                      { key: "tiktok", label: "TikTok" },
+                      { key: "youtube", label: "YouTube" },
+                      { key: "linkedin", label: "LinkedIn" },
+                    ].map((item) => {
+                      const isOn = platforms[item.key as keyof typeof platforms];
+                      return (
+                        <button
                           key={item.key}
-                          className="flex items-center justify-between rounded-2xl border bg-muted/10 px-3 py-2 text-sm"
+                          type="button"
+                          onClick={() =>
+                            setPlatforms((prev) => ({
+                              ...prev,
+                              [item.key]: !prev[item.key as keyof typeof platforms],
+                            }))
+                          }
+                          className={[
+                            "rounded-full border px-4 py-1.5 text-sm transition-all",
+                            isOn
+                              ? "border-primary/60 bg-primary/15 text-foreground"
+                              : "bg-background text-muted-foreground",
+                          ].join(" ")}
                         >
-                          <span>{item.label}</span>
-                          <Switch
-                            checked={platforms[item.key as keyof typeof platforms]}
-                            onCheckedChange={(checked) =>
-                              setPlatforms((prev) => ({ ...prev, [item.key]: checked }))
-                            }
-                          />
-                        </label>
-                      ))}
-                    </div>
-                    <Button className="rounded-2xl" onClick={() => setStep(2)}>
-                      <Sparkles className="mr-2 h-4 w-4" /> Start analysis
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : null}
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <Button className="rounded-2xl" onClick={() => setStep(2)}>
+                    Next →
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : null}
 
-              {step === 2 ? (
-                <Card className="rounded-2xl border bg-background/70">
-                  <CardHeader>
-                    <CardTitle className="text-base">2) BAT recommendations</CardTitle>
-                    <CardDescription>
-                      Optimized mix for {activePlan.label.toLowerCase()}.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {recommendations.map((item) => (
-                      <div key={item.channel} className="rounded-2xl border bg-muted/10 p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="text-sm font-semibold">{item.channel}</div>
-                          <Badge variant="secondary" className="rounded-full">
-                            {item.count} posts
-                          </Badge>
-                        </div>
-                        <div className="mt-1 text-xs text-muted-foreground">{item.mix}</div>
-                        <div className="mt-2 rounded-xl border bg-background/70 p-2 text-xs text-muted-foreground">
-                          Script: {item.script}
+            {step === 2 ? (
+              <Card className="rounded-2xl border bg-background/70">
+                <CardHeader>
+                  <CardTitle className="text-base">Recommended mix</CardTitle>
+                  <CardDescription>
+                    BAT suggests an optimized cadence based on recent performance.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {recommendations.map((item) => (
+                    <div
+                      key={item.channel}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-muted/10 p-3"
+                    >
+                      <div>
+                        <div className="text-sm font-semibold">{item.channel}</div>
+                        <div className="text-xs text-muted-foreground">{item.mix}</div>
+                      </div>
+                      <Badge variant="secondary" className="rounded-full">
+                        {item.count} posts
+                      </Badge>
+                    </div>
+                  ))}
+                  <Button className="rounded-2xl" onClick={() => setStep(3)}>
+                    Next →
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {step === 3 ? (
+              <Card className="rounded-2xl border bg-background/70">
+                <CardHeader>
+                  <CardTitle className="text-base">Approvals</CardTitle>
+                  <CardDescription>
+                    Review drafts and approve before scheduling.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {approvalQueue.map((item) => (
+                    <div
+                      key={`${item.title}-${item.platform}`}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-muted/10 p-3"
+                    >
+                      <div>
+                        <div className="text-sm font-semibold">{item.title}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {item.platform} • {item.status}
                         </div>
                       </div>
-                    ))}
-                    <div className="flex flex-wrap gap-2">
-                      <Button className="rounded-2xl" onClick={() => setStep(3)}>
-                        Approve mix
+                      <Button variant="outline" className="rounded-2xl">
+                        Approve
                       </Button>
-                      <Button variant="ghost" className="rounded-2xl">
-                        Regenerate mix
-                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ) : null}
+                  ))}
+                  <Button className="rounded-2xl" onClick={() => setStep(4)}>
+                    Next →
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : null}
 
-              {step === 3 ? (
-                <Card className="rounded-2xl border bg-background/70">
-                  <CardHeader>
-                    <CardTitle className="text-base">3) Approve content</CardTitle>
-                    <CardDescription>
-                      Review scripts + creatives before scheduling.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {approvalQueue.map((item) => (
-                      <div key={item.title} className="rounded-2xl border bg-muted/10 p-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <div className="text-sm font-semibold">{item.title}</div>
-                            <div className="text-xs text-muted-foreground">{item.status}</div>
-                          </div>
-                          <Badge variant="secondary" className="rounded-full">
-                            Draft
-                          </Badge>
+            {step === 4 ? (
+              <Card className="rounded-2xl border bg-background/70">
+                <CardHeader>
+                  <CardTitle className="text-base">Scheduled content</CardTitle>
+                  <CardDescription>
+                    Approved content is automatically queued.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {scheduledItems.map((item) => (
+                    <div
+                      key={`${item.date}-${item.channel}`}
+                      className="flex items-center justify-between rounded-2xl border bg-muted/10 p-3"
+                    >
+                      <div>
+                        <div className="text-sm font-semibold">
+                          {item.date} • {item.channel}
                         </div>
-                        <div className="mt-2 text-xs text-muted-foreground">
-                          Script: {item.script}
-                        </div>
-                        <div className="mt-2 text-xs text-muted-foreground">
-                          Creative: {item.creative}
-                        </div>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <Button className="rounded-2xl">Approve</Button>
-                          <Button variant="ghost" className="rounded-2xl">
-                            Regenerate
-                          </Button>
-                          <Button variant="ghost" className="rounded-2xl">
-                            Remove
-                          </Button>
-                        </div>
+                        <div className="text-xs text-muted-foreground">{item.slot}</div>
                       </div>
-                    ))}
-                    <Button className="rounded-2xl" onClick={() => setStep(4)}>
-                      Finalize approvals
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : null}
-
-              {step === 4 ? (
-                <Card className="rounded-2xl border bg-background/70">
-                  <CardHeader>
-                    <CardTitle className="text-base">4) Scheduled content</CardTitle>
-                    <CardDescription>
-                      Approved content is automatically queued.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {scheduledItems.map((item) => (
-                      <div
-                        key={`${item.date}-${item.channel}`}
-                        className="flex items-center justify-between rounded-2xl border bg-muted/10 p-3"
-                      >
-                        <div>
-                          <div className="text-sm font-semibold">
-                            {item.date} • {item.channel}
-                          </div>
-                          <div className="text-xs text-muted-foreground">{item.slot}</div>
-                        </div>
-                        <Badge variant="secondary" className="rounded-full">
-                          {item.time}
-                        </Badge>
-                      </div>
-                    ))}
-                    <div className="mt-2">
-                      <Progress value={92} />
-                      <div className="mt-2 text-xs text-muted-foreground">
-                        Calendar 92% scheduled • Auto-publishing enabled
-                      </div>
+                      <Badge variant="secondary" className="rounded-full">
+                        {item.time}
+                      </Badge>
                     </div>
-                    <Button className="rounded-2xl">
-                      <Sparkles className="mr-2 h-4 w-4" /> Publish schedule
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : null}
-            </div>
+                  ))}
+                  <div className="mt-2">
+                    <Progress value={92} />
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      Calendar 92% scheduled • Auto-publishing enabled
+                    </div>
+                  </div>
+                  <Button className="rounded-2xl">
+                    <Sparkles className="mr-2 h-4 w-4" /> Publish Schedule
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : null}
           </div>
         </CardContent>
       </Card>
