@@ -3,27 +3,27 @@
 @tailwind utilities;
 
 :root {
-  --background: 220 15% 6%;
-  --foreground: 0 0% 96%;
-  --muted: 220 10% 12%;
-  --muted-foreground: 220 8% 62%;
-  --primary: 84 90% 50%;
-  --primary-foreground: 220 15% 6%;
-  --secondary: 220 10% 16%;
-  --secondary-foreground: 0 0% 96%;
-  --border: 220 10% 22%;
+  --background: 0 0% 100%;
+  --foreground: 224 19% 12%;
+  --muted: 210 20% 94%;
+  --muted-foreground: 215 16% 38%;
+  --primary: 198 90% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 18% 90%;
+  --secondary-foreground: 224 19% 12%;
+  --border: 214 24% 85%;
 }
 
 .dark {
-  --background: 220 15% 6%;
-  --foreground: 0 0% 96%;
-  --muted: 220 10% 12%;
-  --muted-foreground: 220 8% 62%;
-  --primary: 84 90% 50%;
-  --primary-foreground: 220 15% 6%;
-  --secondary: 220 10% 16%;
-  --secondary-foreground: 0 0% 96%;
-  --border: 220 10% 22%;
+  --background: 222 47% 9%;
+  --foreground: 210 40% 96%;
+  --muted: 220 20% 18%;
+  --muted-foreground: 215 20% 65%;
+  --primary: 198 90% 55%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 220 16% 22%;
+  --secondary-foreground: 210 40% 96%;
+  --border: 220 16% 26%;
 }
 
 body {

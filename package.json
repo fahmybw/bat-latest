@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+codex/deploy-bat-app-to-github-and-vercel-h34cqy
     "prebuild": "node scripts/strip-conflicts.mjs",
+main
     "build": "vite build",
     "preview": "vite preview"
   },

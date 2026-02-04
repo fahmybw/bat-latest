@@ -62,6 +62,16 @@ import {
   Workflow,
   X,
   Moon,
+ codex/deploy-bat-app-to-github-and-vercel-h34cqy
+ codex/deploy-bat-app-to-github-and-vercel-kw47ze
+codex/deploy-bat-app-to-github-and-vercel-2mwmqm
+  Upload,
+  Workflow,
+  X,
+main
+main
+ main
+ main
 } from "lucide-react";
 import {
   Area,
@@ -899,7 +909,15 @@ function NotificationRow({
   );
 }
 
-const generationCategories = [
+const generateTemplates = [
+  {
+    id: "social-reel",
+    title: "Instagram Reel",
+    summary: "30s competitor breakdown with hooks + CTA.",
+    type: "social",
+    format: "Video storyboard",
+    signal: "Competitors",
+  },
   {
     key: "content",
     label: "Content Engine",
@@ -966,32 +984,7 @@ function GenerateStudio({
   onGenerate: (args: { type: string; tone: string; constraints: string }) => void;
   seed?: { type?: string; tone?: string; constraints?: string; key?: string };
 }) {
-  const [selectedCategory, setSelectedCategory] = useState(
-    generationCategories[0].key
-  );
-  const [selectedInputs, setSelectedInputs] = useState<Record<string, string>>(() =>
-    generationCategories.reduce((acc, category) => {
-      category.inputs.forEach((input) => {
-        acc[`${category.key}:${input.label}`] = input.options[0];
-      });
-      return acc;
-    }, {} as Record<string, string>)
-  );
-  const safeSelectedInputs = useMemo(() => {
-    const next = { ...selectedInputs };
-    generationCategories.forEach((category) => {
-      category.inputs.forEach((input) => {
-        const key = `${category.key}:${input.label}`;
-        if (!next[key]) {
-          next[key] = input.options[0];
-        }
-      });
-    });
-    return next;
-  }, [selectedInputs]);
-  const [inputQuery, setInputQuery] = useState<Record<string, string>>({});
-  const [expandedInputs, setExpandedInputs] = useState<Record<string, boolean>>({});
-  const [activeField, setActiveField] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(generateTemplates[0].id);
   const [prompt, setPrompt] = useState(
     "Generate a high-impact artifact using the last 30 days of data. Highlight insights, assets, and next actions."
   );
