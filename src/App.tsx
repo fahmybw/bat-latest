@@ -1390,22 +1390,68 @@ const channelMix = [
 
 function ContentCalendar() {
   const [plan, setPlan] = useState("monthly");
-  const [goal, setGoal] = useState("Audience growth");
-  const [focus, setFocus] = useState("Launch momentum + evergreen growth");
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [purpose, setPurpose] = useState("Audience growth + product launch");
+  const [platforms, setPlatforms] = useState({
+    instagram: true,
+    tiktok: true,
+    youtube: true,
+    linkedin: false,
+    x: false,
+  });
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
   const activePlan = calendarPlans.find((p) => p.key === plan) ?? calendarPlans[1];
 
+  const recommendations = [
+    {
+      channel: "Instagram",
+      count: 8,
+      mix: "4 Reels • 3 Carousels • 1 Story pack",
+      script:
+        "Hook: \"3 mistakes brands make on Reels\" → Value bullets → CTA to follow for weekly tips.",
+    },
+    {
+      channel: "YouTube",
+      count: 4,
+      mix: "2 Long-form • 2 Shorts",
+      script:
+        "Open loop: \"We spent $5K testing hooks\" → Show results → CTA to subscribe.",
+    },
+    {
+      channel: "TikTok",
+      count: 6,
+      mix: "3 Trends • 2 UGC • 1 Stitch",
+      script: "POV: \"Your ad is good, your first 2 seconds aren’t\" → Fixes.",
+    },
+  ];
+
   const approvalQueue = [
-    { title: "Instagram Reel — Hook pack A", status: "Ready for approval" },
-    { title: "LinkedIn Carousel — Founder POV", status: "Ready for approval" },
-    { title: "YouTube Long-form — Episode 4", status: "Drafting" },
+    {
+      title: "Instagram Reel — Hook pack A",
+      status: "Ready for approval",
+      script:
+        "Hook: \"Stop scrolling if you’re stuck at 1% engagement\" → 3 fixes → CTA.",
+      creative: "Neon green text overlay + fast cuts.",
+    },
+    {
+      title: "YouTube Long-form — Episode 4",
+      status: "Draft ready",
+      script: "Title: \"We rebuilt a 7-figure content engine\" → 5-part breakdown.",
+      creative: "Thumbnail: split screen before/after, lime CTA badge.",
+    },
+    {
+      title: "TikTok Trend — Remix",
+      status: "Needs review",
+      script: "Trend audio with on-screen captions + quick stats callouts.",
+      creative: "CapCut template with brand watermark.",
+    },
   ];
 
   const scheduledItems = [
     { date: "May 02", channel: "Instagram", slot: "Reel", time: "09:30" },
     { date: "May 03", channel: "TikTok", slot: "Trend clip", time: "17:00" },
-    { date: "May 04", channel: "LinkedIn", slot: "Carousel", time: "08:15" },
+    { date: "May 04", channel: "YouTube", slot: "Long-form", time: "12:00" },
+    { date: "May 05", channel: "Instagram", slot: "Carousel", time: "08:15" },
   ];
 
   return (
@@ -1417,29 +1463,34 @@ function ContentCalendar() {
           transition={{ duration: 6, repeat: Infinity }}
         />
         <CardHeader className="gap-2">
-          <CardTitle className="text-xl">AI Content Calendar</CardTitle>
+          <CardTitle className="text-xl">Content Calendar Builder</CardTitle>
           <CardDescription>
-            BAT Social builds a full posting calendar with the right content mix, cadence,
-            and publish schedule.
+            Define the goal, let BAT optimize the content mix, then approve and schedule
+            every piece.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-4">
             {[
               {
                 id: 1,
-                title: "Input + initiate",
-                detail: "Share goals, channels, and cadence.",
+                title: "Purpose + platforms",
+                detail: "Set goals and choose channels.",
               },
               {
                 id: 2,
-                title: "BAT optimizes",
-                detail: "AI builds the calendar outline.",
+                title: "BAT recommends",
+                detail: "Mix, counts, and scripts.",
               },
               {
                 id: 3,
-                title: "Approve + schedule",
-                detail: "Review pieces and auto-schedule.",
+                title: "Approve content",
+                detail: "Review or regenerate.",
+              },
+              {
+                id: 4,
+                title: "Scheduled",
+                detail: "Publishing locked in.",
               },
             ].map((item) => {
               const active = step === item.id;
@@ -1449,7 +1500,7 @@ function ContentCalendar() {
                   type="button"
                   whileHover={{ y: -1 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setStep(item.id as 1 | 2 | 3)}
+                  onClick={() => setStep(item.id as 1 | 2 | 3 | 4)}
                   className={[
                     "rounded-2xl border p-4 text-left transition-all",
                     active
@@ -1491,44 +1542,41 @@ function ContentCalendar() {
           <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="space-y-4">
               <div className="rounded-2xl border bg-background/70 p-4">
-                <div className="text-sm font-semibold">Calendar inputs</div>
-                <div className="mt-3 grid gap-3 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <div className="text-xs font-medium text-muted-foreground">Goal</div>
-                    <Input
-                      value={goal}
-                      onChange={(e) => setGoal(e.target.value)}
-                      className="rounded-2xl"
-                      placeholder="Audience growth"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="text-xs font-medium text-muted-foreground">
-                      Focus theme
-                    </div>
-                    <Input
-                      value={focus}
-                      onChange={(e) => setFocus(e.target.value)}
-                      className="rounded-2xl"
-                      placeholder="Launch momentum + evergreen growth"
-                    />
-                  </div>
-                </div>
+                <div className="text-sm font-semibold">1) Purpose + platforms</div>
                 <div className="mt-3 space-y-2">
-                  <div className="text-xs font-medium text-muted-foreground">
-                    Must-have content
-                  </div>
+                  <div className="text-xs font-medium text-muted-foreground">Purpose</div>
                   <Textarea
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
                     className="min-h-[90px] rounded-2xl"
-                    placeholder="Product updates, testimonials, behind-the-scenes, founder POV..."
+                    placeholder="Audience growth, product launch, community engagement..."
                   />
+                </div>
+                <div className="mt-3 grid gap-2 md:grid-cols-2">
+                  {[
+                    { key: "instagram", label: "Instagram" },
+                    { key: "tiktok", label: "TikTok" },
+                    { key: "youtube", label: "YouTube" },
+                    { key: "linkedin", label: "LinkedIn" },
+                    { key: "x", label: "X / Twitter" },
+                  ].map((item) => (
+                    <label
+                      key={item.key}
+                      className="flex items-center justify-between rounded-2xl border bg-muted/10 px-3 py-2 text-sm"
+                    >
+                      <span>{item.label}</span>
+                      <Switch
+                        checked={platforms[item.key as keyof typeof platforms]}
+                        onCheckedChange={(checked) =>
+                          setPlatforms((prev) => ({ ...prev, [item.key]: checked }))
+                        }
+                      />
+                    </label>
+                  ))}
                 </div>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <Button className="rounded-2xl" onClick={() => setStep(2)}>
-                    <Sparkles className="mr-2 h-4 w-4" /> Build outline
-                  </Button>
-                  <Button variant="ghost" className="rounded-2xl" onClick={() => setStep(1)}>
-                    Reset
+                    <Sparkles className="mr-2 h-4 w-4" /> Start analysis
                   </Button>
                 </div>
               </div>
@@ -1536,7 +1584,7 @@ function ContentCalendar() {
               <div className="rounded-2xl border bg-background/70 p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-semibold">Recommended mix</div>
+                    <div className="text-sm font-semibold">2) BAT recommendations</div>
                     <div className="text-xs text-muted-foreground">
                       {activePlan.label} • {activePlan.cadence}
                     </div>
@@ -1546,54 +1594,80 @@ function ContentCalendar() {
                   </Badge>
                 </div>
                 <div className="mt-3 space-y-3">
-                  {channelMix.map((item) => (
+                  {recommendations.map((item) => (
                     <div
                       key={item.channel}
-                      className="flex items-center justify-between rounded-2xl border bg-muted/10 p-3"
+                      className="rounded-2xl border bg-muted/10 p-3"
                     >
-                      <div>
+                      <div className="flex items-center justify-between">
                         <div className="text-sm font-semibold">{item.channel}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {item.formats.join(" • ")}
-                        </div>
+                        <Badge variant="secondary" className="rounded-full">
+                          {item.count} posts
+                        </Badge>
                       </div>
-                      <Badge variant="secondary" className="rounded-full">
-                        {item.count} posts
-                      </Badge>
+                      <div className="mt-1 text-xs text-muted-foreground">{item.mix}</div>
+                      <div className="mt-2 rounded-xl border bg-background/70 p-2 text-xs text-muted-foreground">
+                        Script: {item.script}
+                      </div>
                     </div>
                   ))}
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <Button className="rounded-2xl" onClick={() => setStep(3)}>
+                    Approve mix
+                  </Button>
+                  <Button variant="ghost" className="rounded-2xl">
+                    Regenerate mix
+                  </Button>
                 </div>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="rounded-2xl border bg-background/70 p-4">
-                <div className="text-sm font-semibold">Approval queue</div>
+                <div className="text-sm font-semibold">3) Approve content</div>
                 <div className="mt-2 text-xs text-muted-foreground">
-                  Review each piece before BAT schedules it.
+                  Review scripts and creative previews before scheduling.
                 </div>
                 <div className="mt-3 space-y-3">
                   {approvalQueue.map((item) => (
                     <div
                       key={item.title}
-                      className="flex items-center justify-between rounded-2xl border bg-muted/10 p-3"
+                      className="rounded-2xl border bg-muted/10 p-3"
                     >
-                      <div>
-                        <div className="text-sm font-semibold">{item.title}</div>
-                        <div className="text-xs text-muted-foreground">{item.status}</div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="text-sm font-semibold">{item.title}</div>
+                          <div className="text-xs text-muted-foreground">{item.status}</div>
+                        </div>
+                        <Badge variant="secondary" className="rounded-full">
+                          Draft
+                        </Badge>
                       </div>
-                      <Button variant="ghost" className="rounded-2xl">
-                        Review <ChevronRight className="ml-2 h-4 w-4" />
-                      </Button>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        Script: {item.script}
+                      </div>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        Creative: {item.creative}
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Button className="rounded-2xl">Approve</Button>
+                        <Button variant="ghost" className="rounded-2xl">
+                          Regenerate
+                        </Button>
+                        <Button variant="ghost" className="rounded-2xl">
+                          Remove
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div className="rounded-2xl border bg-background/70 p-4">
-                <div className="text-sm font-semibold">Schedule preview</div>
+                <div className="text-sm font-semibold">4) Scheduled content</div>
                 <div className="mt-2 text-xs text-muted-foreground">
-                  Auto-balanced for reach + conversion.
+                  Approved content is automatically queued.
                 </div>
                 <div className="mt-3 space-y-3">
                   {scheduledItems.map((item) => (
@@ -1614,20 +1688,13 @@ function ContentCalendar() {
                   ))}
                 </div>
                 <div className="mt-4">
-                  <Progress value={72} />
+                  <Progress value={84} />
                   <div className="mt-2 text-xs text-muted-foreground">
-                    Calendar 72% generated • Publishing slots optimized
+                    Calendar 84% scheduled • Remaining drafts in approval
                   </div>
                 </div>
-              </div>
-
-              <div className="rounded-2xl border bg-background/70 p-4">
-                <div className="text-sm font-semibold">Launch the calendar</div>
-                <div className="mt-2 text-xs text-muted-foreground">
-                  BAT will generate the assets, captions, and posting schedule.
-                </div>
-                <Button className="mt-4 w-full rounded-2xl" onClick={() => setStep(3)}>
-                  <Sparkles className="mr-2 h-4 w-4" /> Build content calendar
+                <Button className="mt-4 w-full rounded-2xl" onClick={() => setStep(4)}>
+                  <Sparkles className="mr-2 h-4 w-4" /> Finalize schedule
                 </Button>
               </div>
             </div>
