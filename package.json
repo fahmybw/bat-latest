@@ -1,14 +1,13 @@
 {
   "name": "bat",
+  "description": "BAT Social marketing studio preview",
   "private": true,
   "version": "0.0.0",
   "packageManager": "npm@10.8.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
-codex/deploy-bat-app-to-github-and-vercel-h34cqy
     "prebuild": "node scripts/strip-conflicts.mjs",
-main
     "build": "vite build",
     "preview": "vite preview"
   },

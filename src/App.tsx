@@ -42,6 +42,7 @@ import {
   BarChart3,
   Bell,
   Brain,
+  Calendar,
   CheckCircle2,
   ChevronRight,
   Clock,
@@ -62,16 +63,6 @@ import {
   Workflow,
   X,
   Moon,
- codex/deploy-bat-app-to-github-and-vercel-h34cqy
- codex/deploy-bat-app-to-github-and-vercel-kw47ze
-codex/deploy-bat-app-to-github-and-vercel-2mwmqm
-  Upload,
-  Workflow,
-  X,
-main
-main
- main
- main
 } from "lucide-react";
 import {
   Area,
@@ -98,7 +89,7 @@ const FADE = {
   transition: { type: "spring", stiffness: 220, damping: 22 },
 } as const;
 
-type TabKey = "chat" | "generate" | "brain" | "analytics";
+type TabKey = "chat" | "generate" | "calendar" | "brain" | "analytics";
 
 type TabMeta = { key: TabKey; label: string; icon: React.ReactNode };
 
@@ -129,6 +120,7 @@ type NotificationItem = {
 const TAB_META: TabMeta[] = [
   { key: "chat", label: "Campaign Hub", icon: <Sparkles className="h-4 w-4" /> },
   { key: "generate", label: "Create Content", icon: <FileText className="h-4 w-4" /> },
+  { key: "calendar", label: "Content Calendar", icon: <Calendar className="h-4 w-4" /> },
   { key: "brain", label: "BAT Studio", icon: <Brain className="h-4 w-4" /> },
   { key: "analytics", label: "Performance", icon: <BarChart3 className="h-4 w-4" /> },
 ];
@@ -143,6 +135,11 @@ const TAB_STYLE: Record<TabKey, { glow: string; ring: string; icon: string }> = 
     glow: "from-blue-500/20 via-indigo-500/15 to-violet-500/20",
     ring: "ring-blue-500/20",
     icon: "text-blue-200/80",
+  },
+  calendar: {
+    glow: "from-lime-500/20 via-emerald-500/15 to-green-500/20",
+    ring: "ring-lime-500/20",
+    icon: "text-lime-200/80",
   },
   brain: {
     glow: "from-emerald-500/20 via-teal-500/15 to-cyan-500/20",
@@ -494,7 +491,7 @@ function TopBar({
 function TabNav({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
   return (
     <div className="rounded-2xl border bg-muted/20 p-1.5 sm:p-2 shadow-sm">
-      <div className="grid grid-cols-2 gap-1.5 md:grid-cols-4 md:gap-2">
+      <div className="grid grid-cols-2 gap-1.5 md:grid-cols-5 md:gap-2">
         {TAB_META.map((t) => {
           const styles = TAB_STYLE[t.key];
           const active = tab === t.key;
@@ -909,15 +906,7 @@ function NotificationRow({
   );
 }
 
-const generateTemplates = [
-  {
-    id: "social-reel",
-    title: "Instagram Reel",
-    summary: "30s competitor breakdown with hooks + CTA.",
-    type: "social",
-    format: "Video storyboard",
-    signal: "Competitors",
-  },
+const generationCategories = [
   {
     key: "content",
     label: "Content Engine",
@@ -984,7 +973,32 @@ function GenerateStudio({
   onGenerate: (args: { type: string; tone: string; constraints: string }) => void;
   seed?: { type?: string; tone?: string; constraints?: string; key?: string };
 }) {
-  const [selectedTemplate, setSelectedTemplate] = useState(generateTemplates[0].id);
+  const [selectedCategory, setSelectedCategory] = useState(
+    generationCategories[0].key
+  );
+  const [selectedInputs, setSelectedInputs] = useState<Record<string, string>>(() =>
+    generationCategories.reduce((acc, category) => {
+      category.inputs.forEach((input) => {
+        acc[`${category.key}:${input.label}`] = input.options[0];
+      });
+      return acc;
+    }, {} as Record<string, string>)
+  );
+  const safeSelectedInputs = useMemo(() => {
+    const next = { ...selectedInputs };
+    generationCategories.forEach((category) => {
+      category.inputs.forEach((input) => {
+        const key = `${category.key}:${input.label}`;
+        if (!next[key]) {
+          next[key] = input.options[0];
+        }
+      });
+    });
+    return next;
+  }, [selectedInputs]);
+  const [inputQuery, setInputQuery] = useState<Record<string, string>>({});
+  const [expandedInputs, setExpandedInputs] = useState<Record<string, boolean>>({});
+  const [activeField, setActiveField] = useState<string | null>(null);
   const [prompt, setPrompt] = useState(
     "Generate a high-impact artifact using the last 30 days of data. Highlight insights, assets, and next actions."
   );
@@ -1342,6 +1356,224 @@ function GenerateStudio({
           </CardContent>
         </Card>
       </div>
+    </div>
+  );
+}
+
+const calendarPlans = [
+  {
+    key: "weekly",
+    label: "Weekly Sprint",
+    range: "Next 7 days",
+    cadence: "12 posts",
+  },
+  {
+    key: "monthly",
+    label: "Monthly Plan",
+    range: "Next 30 days",
+    cadence: "48 posts",
+  },
+  {
+    key: "yearly",
+    label: "Annual Strategy",
+    range: "Next 12 months",
+    cadence: "480 posts",
+  },
+];
+
+const channelMix = [
+  { channel: "Instagram", count: 8, formats: ["Reels", "Carousels", "Stories"] },
+  { channel: "YouTube", count: 4, formats: ["Long-form", "Shorts", "Community"] },
+  { channel: "TikTok", count: 6, formats: ["Trends", "UGC", "Duets"] },
+  { channel: "LinkedIn", count: 4, formats: ["Founder POV", "Carousel", "Text"] },
+];
+
+function ContentCalendar() {
+  const [plan, setPlan] = useState("monthly");
+  const [goal, setGoal] = useState("Audience growth");
+  const [focus, setFocus] = useState("Launch momentum + evergreen growth");
+
+  const activePlan = calendarPlans.find((p) => p.key === plan) ?? calendarPlans[1];
+
+  return (
+    <div className="space-y-6">
+      <Card className="relative overflow-hidden rounded-3xl border bg-background shadow-[0_0_35px_rgba(163,230,53,0.18)]">
+        <motion.div
+          className="absolute inset-0 -z-10 bg-gradient-to-br from-lime-500/15 via-green-500/10 to-emerald-500/20"
+          animate={{ opacity: [0.45, 0.8, 0.45] }}
+          transition={{ duration: 6, repeat: Infinity }}
+        />
+        <CardHeader className="gap-2">
+          <CardTitle className="text-xl">AI Content Calendar</CardTitle>
+          <CardDescription>
+            BAT Social builds a full posting calendar with the right content mix, cadence,
+            and publish schedule.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="grid gap-3 md:grid-cols-3">
+            {calendarPlans.map((item, index) => (
+              <motion.button
+                key={item.key}
+                type="button"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 * index }}
+                onClick={() => setPlan(item.key)}
+                className={[
+                  "rounded-2xl border p-4 text-left transition-all",
+                  plan === item.key
+                    ? "border-primary/50 bg-primary/15 shadow-[0_0_18px_rgba(163,230,53,0.25)]"
+                    : "bg-background/70 hover:border-primary/30",
+                ].join(" ")}
+              >
+                <div className="text-sm font-semibold">{item.label}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{item.range}</div>
+                <div className="mt-3 text-xs text-muted-foreground">{item.cadence}</div>
+              </motion.button>
+            ))}
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="space-y-4">
+              <div className="rounded-2xl border bg-background/70 p-4">
+                <div className="text-sm font-semibold">Calendar inputs</div>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <div className="text-xs font-medium text-muted-foreground">Goal</div>
+                    <Input
+                      value={goal}
+                      onChange={(e) => setGoal(e.target.value)}
+                      className="rounded-2xl"
+                      placeholder="Audience growth"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-xs font-medium text-muted-foreground">
+                      Focus theme
+                    </div>
+                    <Input
+                      value={focus}
+                      onChange={(e) => setFocus(e.target.value)}
+                      className="rounded-2xl"
+                      placeholder="Launch momentum + evergreen growth"
+                    />
+                  </div>
+                </div>
+                <div className="mt-3 space-y-2">
+                  <div className="text-xs font-medium text-muted-foreground">
+                    Must-have content
+                  </div>
+                  <Textarea
+                    className="min-h-[90px] rounded-2xl"
+                    placeholder="Product updates, testimonials, behind-the-scenes, founder POV..."
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border bg-background/70 p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-semibold">Recommended mix</div>
+                    <div className="text-xs text-muted-foreground">
+                      {activePlan.label} • {activePlan.cadence}
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="rounded-full">
+                    AI optimized
+                  </Badge>
+                </div>
+                <div className="mt-3 space-y-3">
+                  {channelMix.map((item) => (
+                    <div
+                      key={item.channel}
+                      className="flex items-center justify-between rounded-2xl border bg-muted/10 p-3"
+                    >
+                      <div>
+                        <div className="text-sm font-semibold">{item.channel}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {item.formats.join(" • ")}
+                        </div>
+                      </div>
+                      <Badge variant="secondary" className="rounded-full">
+                        {item.count} posts
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-2xl border bg-background/70 p-4">
+                <div className="text-sm font-semibold">Schedule preview</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Auto-balanced for reach + conversion.
+                </div>
+                <div className="mt-3 space-y-3">
+                  {[
+                    {
+                      day: "Mon",
+                      slot: "Reel + Story",
+                      channel: "Instagram",
+                      time: "09:30",
+                    },
+                    {
+                      day: "Tue",
+                      slot: "Long-form",
+                      channel: "YouTube",
+                      time: "12:00",
+                    },
+                    {
+                      day: "Wed",
+                      slot: "Trend clip",
+                      channel: "TikTok",
+                      time: "17:00",
+                    },
+                    {
+                      day: "Thu",
+                      slot: "Founder POV",
+                      channel: "LinkedIn",
+                      time: "08:15",
+                    },
+                  ].map((item) => (
+                    <div
+                      key={`${item.day}-${item.channel}`}
+                      className="flex items-center justify-between rounded-2xl border bg-muted/10 p-3"
+                    >
+                      <div>
+                        <div className="text-sm font-semibold">
+                          {item.day} • {item.channel}
+                        </div>
+                        <div className="text-xs text-muted-foreground">{item.slot}</div>
+                      </div>
+                      <Badge variant="secondary" className="rounded-full">
+                        {item.time}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4">
+                  <Progress value={72} />
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Calendar 72% generated • Publishing slots optimized
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border bg-background/70 p-4">
+                <div className="text-sm font-semibold">Launch the calendar</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  BAT will generate the assets, captions, and posting schedule.
+                </div>
+                <Button className="mt-4 w-full rounded-2xl">
+                  <Sparkles className="mr-2 h-4 w-4" /> Build content calendar
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -1835,6 +2067,16 @@ export default function BatTabPreview() {
                     subtitle="Generate social content, creative packs, and campaign assets."
                   />
                   <GenerateStudio onGenerate={onGenerateDoc} seed={genSeed} />
+                </motion.div>
+              ) : null}
+
+              {tab === "calendar" ? (
+                <motion.div key="calendar" {...FADE} className="space-y-4">
+                  <SectionHeader
+                    title="Content Calendar"
+                    subtitle="Plan monthly, weekly, or yearly content with the right channel mix."
+                  />
+                  <ContentCalendar />
                 </motion.div>
               ) : null}
 
