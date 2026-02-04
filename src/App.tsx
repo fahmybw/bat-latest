@@ -113,7 +113,7 @@ type WorkflowItem = {
 
 type NotificationSeverity = "Info" | "Warning" | "Critical";
 
-type AppKey = "erp" | "drive" | "slack" | "meta" | "ga4" | "banks";
+type AppKey = "instagram" | "tiktok" | "youtube" | "linkedin" | "x" | "meta";
 
 type NotificationItem = {
   id: string;
@@ -127,10 +127,10 @@ type NotificationItem = {
 };
 
 const TAB_META: TabMeta[] = [
-  { key: "chat", label: "Talk to BAT", icon: <Sparkles className="h-4 w-4" /> },
-  { key: "generate", label: "Generate", icon: <FileText className="h-4 w-4" /> },
-  { key: "brain", label: "BAT Brain", icon: <Brain className="h-4 w-4" /> },
-  { key: "analytics", label: "Analytics", icon: <BarChart3 className="h-4 w-4" /> },
+  { key: "chat", label: "Campaign Hub", icon: <Sparkles className="h-4 w-4" /> },
+  { key: "generate", label: "Create Content", icon: <FileText className="h-4 w-4" /> },
+  { key: "brain", label: "BAT Studio", icon: <Brain className="h-4 w-4" /> },
+  { key: "analytics", label: "Performance", icon: <BarChart3 className="h-4 w-4" /> },
 ];
 
 const TAB_STYLE: Record<TabKey, { glow: string; ring: string; icon: string }> = {
@@ -158,46 +158,46 @@ const TAB_STYLE: Record<TabKey, { glow: string; ring: string; icon: string }> = 
 
 const appsCatalog = [
   {
-    key: "erp" as const,
-    name: "ERP System",
-    desc: "Sync customers, invoices, inventory, and ops records.",
-    badge: "Core",
-    icon: <Database className="h-4 w-4" />,
+    key: "instagram" as const,
+    name: "Instagram",
+    desc: "Reels, carousels, and creator collaborations.",
+    badge: "Reels",
+    icon: <Sparkles className="h-4 w-4" />,
   },
   {
-    key: "drive" as const,
-    name: "Google Drive",
-    desc: "Index docs, sheets, and SOPs (knowledge base).",
-    badge: "Docs",
-    icon: <Globe className="h-4 w-4" />,
+    key: "tiktok" as const,
+    name: "TikTok",
+    desc: "Short-form trends, hooks, and fast edits.",
+    badge: "Shorts",
+    icon: <Workflow className="h-4 w-4" />,
   },
   {
-    key: "slack" as const,
-    name: "Slack",
-    desc: "Capture decisions, alerts, and ops conversations.",
-    badge: "Comms",
+    key: "youtube" as const,
+    name: "YouTube",
+    desc: "Long-form strategy, thumbnails, and series.",
+    badge: "Video",
+    icon: <Upload className="h-4 w-4" />,
+  },
+  {
+    key: "linkedin" as const,
+    name: "LinkedIn",
+    desc: "Founder POV, company news, and lead gen.",
+    badge: "B2B",
     icon: <MessagesSquare className="h-4 w-4" />,
+  },
+  {
+    key: "x" as const,
+    name: "X / Twitter",
+    desc: "Threads, rapid takes, and community replies.",
+    badge: "Realtime",
+    icon: <RefreshCw className="h-4 w-4" />,
   },
   {
     key: "meta" as const,
     name: "Meta Ads",
-    desc: "Pull campaign performance + audience insights.",
-    badge: "Marketing",
-    icon: <Sparkles className="h-4 w-4" />,
-  },
-  {
-    key: "ga4" as const,
-    name: "GA4 / Analytics",
-    desc: "Track funnels, conversion, and attribution signals.",
-    badge: "Marketing",
+    desc: "Paid social creative + audience testing.",
+    badge: "Paid",
     icon: <Search className="h-4 w-4" />,
-  },
-  {
-    key: "banks" as const,
-    name: "Banking / Finance",
-    desc: "Import transactions, cashflow, and reconciliations.",
-    badge: "Finance",
-    icon: <Shield className="h-4 w-4" />,
   },
 ];
 
@@ -206,27 +206,27 @@ type AppMeta = (typeof appsCatalog)[number];
 const starterWorkflows: WorkflowItem[] = [
   {
     id: "wf-01",
-    name: "Weekly Ops Health Check",
-    category: "Operations",
-    cadence: "Every Monday 09:00",
+    name: "Trend Radar Sprint",
+    category: "Creative",
+    cadence: "Every weekday 08:00",
     status: "Running",
-    impact: "Summarizes blockers, overdue tasks, key metrics.",
+    impact: "Pulls trending hooks + audio for the content queue.",
   },
   {
     id: "wf-02",
-    name: "Marketing Spend Guardrails",
-    category: "Marketing",
+    name: "Performance Guardrails",
+    category: "Paid Social",
     cadence: "Hourly",
     status: "Running",
-    impact: "Alerts when CAC/ROAS deviates beyond threshold.",
+    impact: "Flags spikes or drops in CTR, CPC, and ROAS.",
   },
   {
     id: "wf-03",
-    name: "Invoice Aging Watch",
-    category: "Finance",
+    name: "Creator Collab Tracker",
+    category: "Partnerships",
     cadence: "Daily 18:00",
     status: "Paused",
-    impact: "Creates follow-up tasks for overdue invoices.",
+    impact: "Summarizes collab outreach status + follow-ups.",
   },
 ];
 
@@ -243,45 +243,44 @@ const sampleUsage = [
 const sampleNotifications: NotificationItem[] = [
   {
     id: "nt-01",
-    title: "ROAS dipped below threshold",
+    title: "Reel retention dipped",
     summary:
-      "Meta Ads ROAS fell to 1.4 (threshold: 2.0) for Campaign: Prospecting A.",
-    app: "meta",
-    automation: "Marketing Spend Guardrails",
-    severity: "Critical",
-    time: "2m ago",
-    ctaHint: "Ask BAT for root cause + next actions",
+      "Instagram Reels avg watch time fell 18% on the last 3 posts. Hook might be too slow.",
+    app: "instagram",
+    automation: "Hook Velocity Monitor",
+    severity: "Warning",
+    time: "4m ago",
+    ctaHint: "Generate new hooks + openers",
   },
   {
     id: "nt-02",
-    title: "Invoice aging risk",
-    summary: "3 invoices are now 14+ days overdue (total: $12,480).",
-    app: "erp",
-    automation: "Invoice Aging Watch",
-    severity: "Warning",
-    time: "31m ago",
-    ctaHint: "Generate a follow-up email + task list",
+    title: "TikTok spike detected",
+    summary: "One TikTok hit 2.3x baseline views in 2 hours.",
+    app: "tiktok",
+    automation: "Trend Radar Sprint",
+    severity: "Info",
+    time: "18m ago",
+    ctaHint: "Spin 3 follow-up variants",
   },
   {
     id: "nt-03",
-    title: "Traffic anomaly",
-    summary:
-      "GA4 sessions spiked +38% vs yesterday. Check landing page performance.",
-    app: "ga4",
-    automation: "Analytics Spike Monitor",
-    severity: "Info",
+    title: "YouTube thumbnail underperforming",
+    summary: "CTR dropped below 3.2% on the latest upload.",
+    app: "youtube",
+    automation: "Thumbnail A/B Watch",
+    severity: "Warning",
     time: "Today 09:12",
-    ctaHint: "Generate a quick insight memo",
+    ctaHint: "Generate 5 new thumbnail concepts",
   },
   {
     id: "nt-04",
-    title: "Finance threshold met",
-    summary: "Banking: cash balance dropped below $25k (current: $23.6k).",
-    app: "banks",
-    automation: "Cashflow Guardrail",
+    title: "Paid creative fatigue",
+    summary: "Meta Ads CTR declined 22% week-over-week on core creative.",
+    app: "meta",
+    automation: "Performance Guardrails",
     severity: "Critical",
     time: "Yesterday 18:40",
-    ctaHint: "Ask BAT for runway + options",
+    ctaHint: "Refresh ad creative with new angles",
   },
 ];
 
@@ -429,7 +428,7 @@ function TopBar({
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <div className="text-xl font-semibold tracking-tight">BAT</div>
+            <div className="text-xl font-semibold tracking-tight">BAT Social</div>
             <Badge
               className="rounded-full"
               variant={tier === "Premium" ? "default" : "secondary"}
@@ -438,7 +437,7 @@ function TopBar({
             </Badge>
           </div>
           <div className="text-sm text-muted-foreground">
-            Business memory + automated workflows for decisions in real time.
+            Social media marketing studio powered by BAT Brain.
           </div>
         </div>
       </div>
@@ -683,16 +682,16 @@ function ApprovalRow({
 
 function labelDocType(type: string) {
   switch (type) {
-    case "weekly_ops":
-      return "Weekly Ops Memo";
-    case "kpi_review":
-      return "KPI Review";
-    case "process_sop":
-      return "Process SOP";
-    case "board_pack":
-      return "Board Pack Summary";
-    case "sales_pipeline":
-      return "Sales Pipeline Digest";
+    case "content_plan":
+      return "Content Plan";
+    case "creative_sprint":
+      return "Creative Sprint";
+    case "campaign_brief":
+      return "Campaign Brief";
+    case "thumbnail_pack":
+      return "Thumbnail Pack";
+    case "ad_pack":
+      return "Paid Ad Pack";
     default:
       return "Document";
   }
@@ -920,43 +919,62 @@ const generateTemplates = [
     signal: "Competitors",
   },
   {
-    id: "viral-linkedin",
-    title: "LinkedIn Growth Post",
-    summary: "Founder POV, strong hook, punchy CTA.",
-    type: "social",
-    format: "Post + carousel",
-    signal: "Audience insights",
+    key: "content",
+    label: "Content Engine",
+    description: "High-velocity posts, reels, and shorts.",
+    accent: "from-lime-400/20 via-green-500/10 to-emerald-500/20",
+    badge: "Core",
+    inputs: [
+      {
+        label: "Channel",
+        options: ["Instagram", "TikTok", "YouTube Shorts", "LinkedIn", "X / Twitter"],
+      },
+      {
+        label: "Format",
+        options: ["Post", "Reel", "Carousel", "Short video", "Thread"],
+      },
+      {
+        label: "Goal",
+        options: ["Awareness", "Engagement", "Leads", "Conversion", "Retention"],
+      },
+    ],
   },
   {
-    id: "recruitment-policy",
-    title: "Recruitment Policy",
-    summary: "End-to-end hiring workflow + guardrails.",
-    type: "ops",
-    format: "Policy doc",
-    signal: "HR + Ops",
+    key: "creative",
+    label: "Creative Lab",
+    description: "Hooks, scripts, thumbnails, and storyboards.",
+    accent: "from-emerald-400/20 via-lime-500/10 to-green-500/20",
+    badge: "Studio",
+    inputs: [
+      { label: "Artifact", options: ["Hook Pack", "Script", "Storyboard", "Thumbnail"] },
+      { label: "Style", options: ["Bold", "Clean", "Edgy", "Premium", "Playful"] },
+      { label: "Inspiration", options: ["Competitors", "Top posts", "Trends", "UGC"] },
+    ],
   },
   {
-    id: "bpmn-diagram",
-    title: "BPMN Diagram",
-    summary: "Process map with roles, systems, and SLAs.",
-    type: "ops",
-    format: "Diagram + SOP",
-    signal: "Workflow logs",
+    key: "paid",
+    label: "Paid Social",
+    description: "Meta ad packs, variants, and testing plans.",
+    accent: "from-green-400/20 via-lime-500/10 to-emerald-500/20",
+    badge: "Ads",
+    inputs: [
+      { label: "Platform", options: ["Meta", "TikTok", "YouTube", "LinkedIn"] },
+      { label: "Asset", options: ["Ad Copy", "Creative Pack", "Landing Brief"] },
+      { label: "Objective", options: ["Acquire", "Retarget", "Upsell", "Launch"] },
+    ],
   },
   {
-    id: "nda-template",
-    title: "NDA Template",
-    summary: "Mutual NDA tuned to your risk profile.",
-    type: "legal",
-    format: "Docx + PDF",
-    signal: "Legal standards",
+    key: "community",
+    label: "Community",
+    description: "Replies, engagement loops, and creator collabs.",
+    accent: "from-lime-500/20 via-emerald-500/10 to-green-500/20",
+    badge: "Social",
+    inputs: [
+      { label: "Channel", options: ["Instagram", "TikTok", "YouTube", "LinkedIn"] },
+      { label: "Action", options: ["Engage", "Collaborate", "Moderate", "Respond"] },
+      { label: "Tone", options: ["Helpful", "Playful", "Expert", "Hype"] },
+    ],
   },
-];
-
-const generateTracks = [
-  { label: "Social + Growth", detail: "Posts, reels, campaigns, briefs" },
-  { label: "Operations", detail: "Policies, BPMN, SOPs, playbooks" },
-  { label: "Legal + Finance", detail: "Templates, memos, board packs" },
 ];
 
 function GenerateStudio({
@@ -977,9 +995,9 @@ function GenerateStudio({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seed?.key]);
 
-  const activeTemplate =
-    generateTemplates.find((template) => template.id === selectedTemplate) ??
-    generateTemplates[0];
+  const activeCategory =
+    generationCategories.find((category) => category.key === selectedCategory) ??
+    generationCategories[0];
 
   return (
     <div className="space-y-6">
@@ -997,79 +1015,237 @@ function GenerateStudio({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="grid gap-3 md:grid-cols-3">
-            {generateTracks.map((track, index) => (
-              <motion.div
-                key={track.label}
+          <div className="grid gap-3 md:grid-cols-5">
+            {generationCategories.map((category, index) => (
+              <motion.button
+                key={category.key}
+                type="button"
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 * index }}
-                className="rounded-2xl border bg-muted/10 p-4"
+                transition={{ delay: 0.04 * index }}
+                onClick={() => setSelectedCategory(category.key)}
+                className={[
+                  "rounded-2xl border px-3 py-3 text-left transition-all",
+                  selectedCategory === category.key
+                    ? "border-primary/40 bg-primary/10 shadow-[0_0_18px_rgba(56,189,248,0.2)]"
+                    : "bg-background hover:border-primary/30",
+                ].join(" ")}
               >
-                <div className="text-sm font-semibold">{track.label}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{track.detail}</div>
-              </motion.div>
+                <div className="text-sm font-semibold">{category.label}</div>
+                <div className="mt-1 text-[11px] text-muted-foreground">
+                  {category.description}
+                </div>
+                <div className="mt-2">
+                  <Badge variant="secondary" className="rounded-full">
+                    {category.badge}
+                  </Badge>
+                </div>
+              </motion.button>
             ))}
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="space-y-3">
-              <div className="text-sm font-semibold">Pick a launch template</div>
-              <div className="grid gap-3 md:grid-cols-2">
-                {generateTemplates.map((template) => {
-                  const active = template.id === selectedTemplate;
-                  return (
-                    <motion.button
-                      key={template.id}
-                      type="button"
-                      whileHover={{ y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setSelectedTemplate(template.id)}
-                      className={[
-                        "rounded-2xl border p-4 text-left transition-all",
-                        active
-                          ? "border-primary/40 bg-primary/10 shadow-[0_0_25px_rgba(56,189,248,0.2)]"
-                          : "bg-background hover:border-primary/30",
-                      ].join(" ")}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="text-sm font-semibold">{template.title}</div>
-                          <div className="mt-1 text-xs text-muted-foreground">
-                            {template.summary}
-                          </div>
+          <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
+            <div className="space-y-4">
+              <div
+                className={[
+                  "rounded-3xl border p-5",
+                  "bg-gradient-to-br",
+                  activeCategory.accent,
+                ].join(" ")}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-base font-semibold">{activeCategory.label}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {activeCategory.description}
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="rounded-full">
+                    {activeCategory.badge}
+                  </Badge>
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    {activeCategory.inputs.map((input) => {
+                      const key = `${activeCategory.key}:${input.label}`;
+                      return (
+                        <Pill key={input.label}>
+                          {input.label}: {safeSelectedInputs[key]}
+                        </Pill>
+                      );
+                    })}
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {activeCategory.inputs.map((input) => {
+                      const key = `${activeCategory.key}:${input.label}`;
+                      const selected = safeSelectedInputs[key] ?? input.options[0];
+                      const query = inputQuery[key] ?? "";
+                      const filteredOptions = input.options.filter((option) =>
+                        option.toLowerCase().includes(query.trim().toLowerCase())
+                      );
+                      const showAll = expandedInputs[key] ?? false;
+                      const visibleOptions = showAll
+                        ? filteredOptions
+                        : filteredOptions.slice(0, 10);
+                      const isOpen = activeField === key;
+
+                      return (
+                        <div
+                          key={input.label}
+                          className="rounded-2xl border bg-background/60 p-3"
+                        >
+                          <button
+                            type="button"
+                            className="flex w-full items-center justify-between text-left"
+                            onClick={() => setActiveField(isOpen ? null : key)}
+                          >
+                            <div>
+                              <div className="text-xs font-medium text-muted-foreground">
+                                {input.label}
+                              </div>
+                              <div className="mt-1 text-sm font-semibold">{selected}</div>
+                            </div>
+                            <ChevronRight
+                              className={[
+                                "h-4 w-4 text-muted-foreground transition-transform",
+                                isOpen ? "rotate-90" : "",
+                              ].join(" ")}
+                            />
+                          </button>
+
+                          <AnimatePresence initial={false}>
+                            {isOpen ? (
+                              <motion.div
+                                key={`${key}-panel`}
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-3 space-y-3">
+                                  <div className="flex items-center gap-2 rounded-2xl border bg-background/70 px-3 py-2 text-xs">
+                                    <Search className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <input
+                                      value={query}
+                                      onChange={(e) =>
+                                        setInputQuery((prev) => ({
+                                          ...prev,
+                                          [key]: e.target.value,
+                                        }))
+                                      }
+                                      placeholder={`Search ${input.label.toLowerCase()}…`}
+                                      className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                                    />
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {visibleOptions.map((option) => (
+                                      <motion.button
+                                        key={option}
+                                        type="button"
+                                        whileHover={{ y: -1 }}
+                                        whileTap={{ scale: 0.97 }}
+                                        onClick={() =>
+                                          setSelectedInputs((prev) => ({
+                                            ...prev,
+                                            [key]: option,
+                                          }))
+                                        }
+                                        className={[
+                                          "rounded-full border px-3 py-1 text-xs transition-all",
+                                          selected === option
+                                            ? "border-primary/50 bg-primary/20 text-foreground"
+                                            : "bg-background/60 text-muted-foreground",
+                                        ].join(" ")}
+                                      >
+                                        {option}
+                                      </motion.button>
+                                    ))}
+                                    {filteredOptions.length === 0 ? (
+                                      <div className="text-xs text-muted-foreground">
+                                        No matches. Try another keyword.
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                  {filteredOptions.length > 10 ? (
+                                    <button
+                                      type="button"
+                                      className="text-xs text-muted-foreground hover:text-foreground"
+                                      onClick={() =>
+                                        setExpandedInputs((prev) => ({
+                                          ...prev,
+                                          [key]: !showAll,
+                                        }))
+                                      }
+                                    >
+                                      {showAll ? "Show fewer" : "Show all options"}
+                                    </button>
+                                  ) : null}
+                                </div>
+                              </motion.div>
+                            ) : null}
+                          </AnimatePresence>
                         </div>
-                        <Badge variant="secondary" className="rounded-full">
-                          {template.type}
-                        </Badge>
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                        <Pill>{template.format}</Pill>
-                        <Pill>{template.signal}</Pill>
-                      </div>
-                    </motion.button>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border bg-background p-4 space-y-3">
+                <div className="text-sm font-semibold">Generation prompt</div>
+                <Textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="min-h-[110px] rounded-2xl"
+                  placeholder="Describe the artifact, audience, and success criteria..."
+                />
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                    <Lock className="h-4 w-4" /> Uses only sources you’ve approved.
+                  </div>
+                  <Button
+                    className="rounded-2xl"
+                    onClick={() => {
+                      const inputSummary = activeCategory.inputs
+                        .map(
+                          (input) =>
+                            `${input.label}: ${
+                              safeSelectedInputs[`${activeCategory.key}:${input.label}`]
+                            }`
+                        )
+                        .join(" • ");
+                      onGenerate({
+                        type: `${activeCategory.label} • ${inputSummary}`,
+                        tone: activeCategory.label,
+                        constraints: prompt,
+                      });
+                    }}
+                  >
+                    <Sparkles className="mr-2 h-4 w-4" /> Launch generation
+                  </Button>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="text-sm font-semibold">Workspace controls</div>
+            <div className="space-y-4">
               <div className="rounded-2xl border bg-background p-4">
-                <div className="text-xs text-muted-foreground">Active template</div>
-                <div className="mt-2 text-base font-semibold">{activeTemplate.title}</div>
+                <div className="text-xs text-muted-foreground">Active category</div>
+                <div className="mt-2 text-base font-semibold">{activeCategory.label}</div>
                 <div className="mt-1 text-xs text-muted-foreground">
-                  {activeTemplate.summary}
+                  {activeCategory.description}
                 </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Badge variant="secondary" className="rounded-full">
-                    {activeTemplate.format}
-                  </Badge>
-                  <Badge variant="secondary" className="rounded-full">
-                    Source: {activeTemplate.signal}
-                  </Badge>
+                <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                  {activeCategory.inputs.map((input) => (
+                    <Pill key={input.label}>
+                      {safeSelectedInputs[`${activeCategory.key}:${input.label}`]}
+                    </Pill>
+                  ))}
                 </div>
               </div>
+
               <div className="rounded-2xl border bg-background p-4">
                 <div className="text-xs text-muted-foreground">Output pack</div>
                 <div className="mt-2 space-y-2 text-sm">
@@ -1087,33 +1263,6 @@ function GenerateStudio({
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border bg-background p-4 space-y-3">
-            <div className="text-sm font-semibold">Generation brief</div>
-            <Textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              className="min-h-[110px] rounded-2xl"
-              placeholder="Describe the artifact, audience, and success criteria..."
-            />
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
-                <Lock className="h-4 w-4" /> Uses only sources you’ve approved.
-              </div>
-              <Button
-                className="rounded-2xl"
-                onClick={() =>
-                  onGenerate({
-                    type: activeTemplate.title,
-                    tone: activeTemplate.type,
-                    constraints: prompt,
-                  })
-                }
-              >
-                <Sparkles className="mr-2 h-4 w-4" /> Launch generation
-              </Button>
             </div>
           </div>
         </CardContent>
@@ -1216,7 +1365,7 @@ function runSmokeTests() {
   console.assert(uniq(notifIds), "sampleNotifications ids should be unique");
 
   // eslint-disable-next-line no-console
-  console.assert(labelDocType("weekly_ops") === "Weekly Ops Memo", "labelDocType ok");
+  console.assert(labelDocType("content_plan") === "Content Plan", "labelDocType ok");
   // eslint-disable-next-line no-console
   console.assert(labelTone("executive") === "Executive", "labelTone ok");
 
@@ -1244,12 +1393,12 @@ export default function BatTabPreview() {
   }, [theme]);
 
   const [connected, setConnected] = useState<Record<AppKey, boolean>>({
-    erp: true,
-    drive: false,
-    slack: false,
-    meta: false,
-    ga4: true,
-    banks: false,
+    instagram: true,
+    tiktok: true,
+    youtube: false,
+    linkedin: true,
+    x: false,
+    meta: true,
   });
 
   const [workflowState, setWorkflowState] = useState<WorkflowItem[]>([
@@ -1262,8 +1411,8 @@ export default function BatTabPreview() {
   >([
     {
       role: "assistant",
-      text: "Hi — I’m BAT. Ask me anything about your operation. I’ll answer using your approved sources and show what I used.",
-      meta: "Sources: ERP • Analytics (mock)",
+      text: "Hi — I’m BAT Social. Ask me about your content pipeline, hooks, or performance. I’ll answer using your approved sources.",
+      meta: "Sources: Instagram • TikTok • Meta Ads (mock)",
     },
   ]);
 
@@ -1376,8 +1525,8 @@ export default function BatTabPreview() {
       { role: "user", text },
       {
         role: "assistant",
-        text: "Here’s what I found based on your current BAT memory. I can also generate a report or create an action list.",
-        meta: "Sources: ERP • Docs • Finance (mock)",
+        text: "Here’s what I found based on your current BAT memory. I can also generate a creative pack or launch a new campaign sprint.",
+        meta: "Sources: Instagram • YouTube • Meta Ads (mock)",
       },
     ]);
   };
@@ -1443,7 +1592,7 @@ export default function BatTabPreview() {
 
     setGenSeed({
       key: `notif_${n.id}_${Date.now()}`,
-      type: n.severity === "Critical" ? "weekly_ops" : "kpi_review",
+      type: n.severity === "Critical" ? "creative_sprint" : "content_plan",
       tone: "executive",
       constraints: buildGenConstraints(n),
     });
@@ -1454,11 +1603,11 @@ export default function BatTabPreview() {
       id: `nt-${Math.floor(Math.random() * 9000) + 1000}`,
       title: "New threshold alert",
       summary: "A monitored value crossed its configured threshold (mock).",
-      app: "slack",
-      automation: "Ops Alert Channel Monitor",
+      app: "linkedin",
+      automation: "Executive Voice Monitor",
       severity: "Info",
       time: "Just now",
-      ctaHint: "Ask BAT to summarize and propose next steps",
+      ctaHint: "Generate a sharper hook + CTA",
     };
 
     setNotifications((prev) => [n, ...prev]);
@@ -1473,7 +1622,7 @@ export default function BatTabPreview() {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <TopBar
-          tier="Premium"
+          tier="Agency"
           theme={theme}
           onToggleTheme={() =>
             setTheme((prev) => (prev === "dark" ? "light" : "dark"))
@@ -1484,25 +1633,25 @@ export default function BatTabPreview() {
         <Dialog open={apiOpen} onOpenChange={setApiOpen}>
           <DialogContent className="sm:max-w-[620px]">
             <DialogHeader>
-              <DialogTitle>Add API link</DialogTitle>
-              <DialogDescription>
+                <DialogTitle>Add channel connection</DialogTitle>
+                <DialogDescription>
                 Preview: store a secure connector (OAuth/token/webhook) in the backend.
-              </DialogDescription>
+                </DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-2">
                 <div className="text-xs font-medium text-muted-foreground">App</div>
-                <Select defaultValue="custom">
+                <Select defaultValue="instagram">
                   <SelectTrigger className="rounded-2xl">
                     <SelectValue placeholder="Choose" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="custom">Custom API</SelectItem>
-                    <SelectItem value="erp">ERP System</SelectItem>
-                    <SelectItem value="shopify">Shopify</SelectItem>
-                    <SelectItem value="stripe">Stripe</SelectItem>
-                    <SelectItem value="quickbooks">QuickBooks</SelectItem>
+                    <SelectItem value="instagram">Instagram</SelectItem>
+                    <SelectItem value="tiktok">TikTok</SelectItem>
+                    <SelectItem value="youtube">YouTube</SelectItem>
+                    <SelectItem value="linkedin">LinkedIn</SelectItem>
+                    <SelectItem value="x">X / Twitter</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1571,7 +1720,7 @@ export default function BatTabPreview() {
             <DialogHeader>
               <DialogTitle>Upload documents</DialogTitle>
               <DialogDescription>
-                Add SOPs, playbooks, invoices, campaign briefs, etc. BAT indexes them for search + Q&A.
+                Add brand guides, briefs, scripts, creative references, and campaign docs. BAT indexes them for search + Q&A.
               </DialogDescription>
             </DialogHeader>
 
@@ -1617,13 +1766,13 @@ export default function BatTabPreview() {
               {tab === "chat" ? (
                 <motion.div key="chat" {...FADE} className="space-y-4">
                   <SectionHeader
-                    title="Talk to BAT"
-                    subtitle="Ask questions, request decisions, and generate actions from your org memory."
+                    title="Campaign Hub"
+                    subtitle="Plan, brief, and ship social campaigns with BAT as your agency."
                   />
 
                   <Card className="rounded-2xl shadow-sm">
                     <CardHeader>
-                      <CardTitle className="text-base">Conversation</CardTitle>
+                      <CardTitle className="text-base">Creative Command</CardTitle>
                       <CardDescription>Preview UI: responses are mocked.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -1644,7 +1793,7 @@ export default function BatTabPreview() {
                         <Input
                           value={chatInput}
                           onChange={(e) => setChatInput(e.target.value)}
-                          placeholder="Ask BAT…"
+                          placeholder="Ask BAT about your next post…"
                           className="rounded-2xl"
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -1671,7 +1820,7 @@ export default function BatTabPreview() {
                         />
                         <Copyable
                           label="System prompt (preview)"
-                          value={`You are connected to BAT for org ${orgId}. Use the connector endpoint. Answer using only approved sources. Cite categories used (ERP, Docs, Marketing, Finance). If uncertain, ask a clarifying question.`}
+                          value={`You are connected to BAT Social for org ${orgId}. Use the connector endpoint. Answer using only approved sources. Cite channels used (Instagram, TikTok, YouTube, LinkedIn, Meta Ads). If uncertain, ask a clarifying question.`}
                         />
                       </div>
                     </CardContent>
@@ -1682,8 +1831,8 @@ export default function BatTabPreview() {
               {tab === "generate" ? (
                 <motion.div key="generate" {...FADE} className="space-y-4">
                   <SectionHeader
-                    title="Generate"
-                    subtitle="Create reports, SOPs, briefs, and summaries from BAT memory."
+                    title="Create Content"
+                    subtitle="Generate social content, creative packs, and campaign assets."
                   />
                   <GenerateStudio onGenerate={onGenerateDoc} seed={genSeed} />
                 </motion.div>
@@ -1692,8 +1841,8 @@ export default function BatTabPreview() {
               {tab === "brain" ? (
                 <motion.div key="brain" {...FADE} className="space-y-4">
                   <SectionHeader
-                    title="BAT Brain"
-                    subtitle="Integrations + Workflows + Data approval in one place."
+                    title="BAT Studio"
+                    subtitle="Connect channels, manage workflows, and approve data access."
                     right={
                       <div className="flex items-center gap-2">
                         <Button className="rounded-2xl" onClick={() => setApiOpen(true)}>
@@ -1712,21 +1861,21 @@ export default function BatTabPreview() {
 
                   <div className="grid gap-4 md:grid-cols-3">
                     <Stat
-                      label="Connected sources"
+                      label="Connected channels"
                       value={`${connectedCount} / ${appsCatalog.length}`}
-                      hint="Integrations + uploads BAT can read."
+                      hint="Channels BAT can read and learn from."
                       icon={<Plug className="h-4 w-4" />}
                     />
                     <Stat
-                      label="Docs indexed"
+                      label="Assets indexed"
                       value={docsIndexed}
-                      hint="Structured knowledge available for Q&A."
+                      hint="Creative assets ready for reuse."
                       icon={<Database className="h-4 w-4" />}
                     />
                     <Stat
                       label="Active workflows"
                       value={runningCount}
-                      hint="Always-on monitors across functions."
+                      hint="Always-on monitors across channels."
                       icon={<Workflow className="h-4 w-4" />}
                     />
                   </div>
@@ -1736,7 +1885,7 @@ export default function BatTabPreview() {
                       <CardHeader>
                         <CardTitle className="text-base">Integrations</CardTitle>
                         <CardDescription>
-                          Connect apps BAT can read and learn from.
+                          Connect channels BAT can read and learn from.
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="grid gap-4 md:grid-cols-2">
@@ -1780,7 +1929,7 @@ export default function BatTabPreview() {
                     <CardHeader>
                       <CardTitle className="text-base">Workflows</CardTitle>
                       <CardDescription>
-                        Always-on monitors across operations, marketing, and finance.
+                        Always-on monitors across social and paid media.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -1838,8 +1987,8 @@ export default function BatTabPreview() {
               {tab === "analytics" ? (
                 <motion.div key="analytics" {...FADE} className="space-y-4">
                   <SectionHeader
-                    title="Analytics"
-                    subtitle="Usage, indexing velocity, and decision-support signals (preview)."
+                      title="Performance"
+                      subtitle="Content velocity, audience growth, and creative signals."
                   />
 
                   <div className="grid gap-4 md:grid-cols-3">
@@ -1926,16 +2075,16 @@ export default function BatTabPreview() {
                       onValueChange={(v) => setNotifAppFilter(v as AppKey | "all")}
                     >
                       <SelectTrigger className="rounded-2xl h-9">
-                        <SelectValue placeholder="App" />
+                        <SelectValue placeholder="Channel" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All apps</SelectItem>
-                        <SelectItem value="erp">ERP</SelectItem>
-                        <SelectItem value="drive">Drive</SelectItem>
-                        <SelectItem value="slack">Slack</SelectItem>
-                        <SelectItem value="meta">Meta</SelectItem>
-                        <SelectItem value="ga4">GA4</SelectItem>
-                        <SelectItem value="banks">Banking</SelectItem>
+                        <SelectItem value="all">All channels</SelectItem>
+                        <SelectItem value="instagram">Instagram</SelectItem>
+                        <SelectItem value="tiktok">TikTok</SelectItem>
+                        <SelectItem value="youtube">YouTube</SelectItem>
+                        <SelectItem value="linkedin">LinkedIn</SelectItem>
+                        <SelectItem value="x">X / Twitter</SelectItem>
+                        <SelectItem value="meta">Meta Ads</SelectItem>
                       </SelectContent>
                     </Select>
 
