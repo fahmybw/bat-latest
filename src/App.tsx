@@ -1392,8 +1392,21 @@ function ContentCalendar() {
   const [plan, setPlan] = useState("monthly");
   const [goal, setGoal] = useState("Audience growth");
   const [focus, setFocus] = useState("Launch momentum + evergreen growth");
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
   const activePlan = calendarPlans.find((p) => p.key === plan) ?? calendarPlans[1];
+
+  const approvalQueue = [
+    { title: "Instagram Reel — Hook pack A", status: "Ready for approval" },
+    { title: "LinkedIn Carousel — Founder POV", status: "Ready for approval" },
+    { title: "YouTube Long-form — Episode 4", status: "Drafting" },
+  ];
+
+  const scheduledItems = [
+    { date: "May 02", channel: "Instagram", slot: "Reel", time: "09:30" },
+    { date: "May 03", channel: "TikTok", slot: "Trend clip", time: "17:00" },
+    { date: "May 04", channel: "LinkedIn", slot: "Carousel", time: "08:15" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -1411,6 +1424,47 @@ function ContentCalendar() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
+          <div className="grid gap-3 md:grid-cols-3">
+            {[
+              {
+                id: 1,
+                title: "Input + initiate",
+                detail: "Share goals, channels, and cadence.",
+              },
+              {
+                id: 2,
+                title: "BAT optimizes",
+                detail: "AI builds the calendar outline.",
+              },
+              {
+                id: 3,
+                title: "Approve + schedule",
+                detail: "Review pieces and auto-schedule.",
+              },
+            ].map((item) => {
+              const active = step === item.id;
+              return (
+                <motion.button
+                  key={item.id}
+                  type="button"
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setStep(item.id as 1 | 2 | 3)}
+                  className={[
+                    "rounded-2xl border p-4 text-left transition-all",
+                    active
+                      ? "border-primary/50 bg-primary/15 shadow-[0_0_18px_rgba(163,230,53,0.25)]"
+                      : "bg-background/70 hover:border-primary/30",
+                  ].join(" ")}
+                >
+                  <div className="text-xs text-muted-foreground">Step {item.id}</div>
+                  <div className="mt-1 text-sm font-semibold">{item.title}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{item.detail}</div>
+                </motion.button>
+              );
+            })}
+          </div>
+
           <div className="grid gap-3 md:grid-cols-3">
             {calendarPlans.map((item, index) => (
               <motion.button
@@ -1469,6 +1523,14 @@ function ContentCalendar() {
                     placeholder="Product updates, testimonials, behind-the-scenes, founder POV..."
                   />
                 </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <Button className="rounded-2xl" onClick={() => setStep(2)}>
+                    <Sparkles className="mr-2 h-4 w-4" /> Build outline
+                  </Button>
+                  <Button variant="ghost" className="rounded-2xl" onClick={() => setStep(1)}>
+                    Reset
+                  </Button>
+                </div>
               </div>
 
               <div className="rounded-2xl border bg-background/70 p-4">
@@ -1506,44 +1568,42 @@ function ContentCalendar() {
 
             <div className="space-y-4">
               <div className="rounded-2xl border bg-background/70 p-4">
+                <div className="text-sm font-semibold">Approval queue</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Review each piece before BAT schedules it.
+                </div>
+                <div className="mt-3 space-y-3">
+                  {approvalQueue.map((item) => (
+                    <div
+                      key={item.title}
+                      className="flex items-center justify-between rounded-2xl border bg-muted/10 p-3"
+                    >
+                      <div>
+                        <div className="text-sm font-semibold">{item.title}</div>
+                        <div className="text-xs text-muted-foreground">{item.status}</div>
+                      </div>
+                      <Button variant="ghost" className="rounded-2xl">
+                        Review <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border bg-background/70 p-4">
                 <div className="text-sm font-semibold">Schedule preview</div>
                 <div className="mt-2 text-xs text-muted-foreground">
                   Auto-balanced for reach + conversion.
                 </div>
                 <div className="mt-3 space-y-3">
-                  {[
-                    {
-                      day: "Mon",
-                      slot: "Reel + Story",
-                      channel: "Instagram",
-                      time: "09:30",
-                    },
-                    {
-                      day: "Tue",
-                      slot: "Long-form",
-                      channel: "YouTube",
-                      time: "12:00",
-                    },
-                    {
-                      day: "Wed",
-                      slot: "Trend clip",
-                      channel: "TikTok",
-                      time: "17:00",
-                    },
-                    {
-                      day: "Thu",
-                      slot: "Founder POV",
-                      channel: "LinkedIn",
-                      time: "08:15",
-                    },
-                  ].map((item) => (
+                  {scheduledItems.map((item) => (
                     <div
-                      key={`${item.day}-${item.channel}`}
+                      key={`${item.date}-${item.channel}`}
                       className="flex items-center justify-between rounded-2xl border bg-muted/10 p-3"
                     >
                       <div>
                         <div className="text-sm font-semibold">
-                          {item.day} • {item.channel}
+                          {item.date} • {item.channel}
                         </div>
                         <div className="text-xs text-muted-foreground">{item.slot}</div>
                       </div>
@@ -1566,7 +1626,7 @@ function ContentCalendar() {
                 <div className="mt-2 text-xs text-muted-foreground">
                   BAT will generate the assets, captions, and posting schedule.
                 </div>
-                <Button className="mt-4 w-full rounded-2xl">
+                <Button className="mt-4 w-full rounded-2xl" onClick={() => setStep(3)}>
                   <Sparkles className="mr-2 h-4 w-4" /> Build content calendar
                 </Button>
               </div>
