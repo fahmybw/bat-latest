@@ -1441,6 +1441,55 @@ function ContentCalendar() {
     { date: "May 05", channel: "Instagram", slot: "Carousel", time: "08:15" },
   ];
 
+  const previousPlans = [
+    {
+      id: "plan-042",
+      title: "April Launch Sprint",
+      timeframe: "Apr 01 – Apr 30",
+      status: "Published",
+      updated: "May 01",
+      changes: 12,
+      summary: "Launch-focused cadence with creator collabs and paid retargeting.",
+      highlights: [
+        "Added 3 creator Reels after spike in saves.",
+        "Swapped 2 Meta ad concepts for higher CTR.",
+        "Paused LinkedIn carousel during webinar week.",
+      ],
+    },
+    {
+      id: "plan-041",
+      title: "Q1 Evergreen Refresh",
+      timeframe: "Mar 01 – Mar 31",
+      status: "Archived",
+      updated: "Apr 02",
+      changes: 7,
+      summary: "Evergreen content rotation to stabilize engagement.",
+      highlights: [
+        "Introduced weekly Shorts recap for YouTube.",
+        "Consolidated TikTok trends into 2 weekly batches.",
+        "Shifted posting times to 09:00-11:00 window.",
+      ],
+    },
+    {
+      id: "plan-040",
+      title: "Founder Story Arc",
+      timeframe: "Feb 01 – Feb 28",
+      status: "Archived",
+      updated: "Mar 03",
+      changes: 9,
+      summary: "Narrative series centered on founder POV and product journey.",
+      highlights: [
+        "Added 4 behind-the-scenes Instagram Stories.",
+        "Replaced 1 long-form script with AMA cut.",
+        "Moved launch teaser to mid-month.",
+      ],
+    },
+  ];
+
+  const [selectedPlanId, setSelectedPlanId] = useState(previousPlans[0]?.id ?? "");
+  const selectedPlan =
+    previousPlans.find((plan) => plan.id === selectedPlanId) ?? previousPlans[0];
+
   return (
     <div className="space-y-6">
       <Card className="relative overflow-hidden rounded-3xl border bg-background shadow-[0_0_35px_rgba(163,230,53,0.18)]">
@@ -1496,6 +1545,79 @@ function ContentCalendar() {
               );
             })}
           </div>
+
+          <Card className="rounded-2xl border bg-background/70">
+            <CardHeader>
+              <CardTitle className="text-base">Previous plans</CardTitle>
+              <CardDescription>
+                Review past calendars, statuses, and key changes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+              <div className="space-y-2">
+                {previousPlans.map((plan) => {
+                  const isActive = plan.id === selectedPlan?.id;
+                  return (
+                    <button
+                      key={plan.id}
+                      type="button"
+                      onClick={() => setSelectedPlanId(plan.id)}
+                      className={[
+                        "w-full rounded-2xl border px-4 py-3 text-left transition-all",
+                        isActive
+                          ? "border-primary/50 bg-primary/15 shadow-[0_0_18px_rgba(163,230,53,0.25)]"
+                          : "bg-background/60 hover:border-primary/30",
+                      ].join(" ")}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <div className="text-sm font-semibold">{plan.title}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {plan.timeframe}
+                          </div>
+                        </div>
+                        <Badge variant="secondary" className="rounded-full">
+                          {plan.status}
+                        </Badge>
+                      </div>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        {plan.changes} changes • Updated {plan.updated}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              {selectedPlan ? (
+                <div className="rounded-2xl border bg-muted/10 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="text-sm font-semibold">{selectedPlan.title}</div>
+                    <Badge variant="secondary" className="rounded-full">
+                      {selectedPlan.status}
+                    </Badge>
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    {selectedPlan.timeframe} • {selectedPlan.changes} changes
+                  </div>
+                  <div className="mt-3 text-xs text-muted-foreground">
+                    {selectedPlan.summary}
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {selectedPlan.highlights.map((note) => (
+                      <div
+                        key={note}
+                        className="rounded-xl border bg-background/70 px-3 py-2 text-xs text-muted-foreground"
+                      >
+                        {note}
+                      </div>
+                    ))}
+                  </div>
+                  <Button variant="outline" className="mt-4 rounded-2xl">
+                    View plan
+                  </Button>
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
 
           <div className="space-y-4">
             {step === 1 ? (
