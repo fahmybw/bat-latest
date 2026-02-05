@@ -155,28 +155,28 @@ const TAB_STYLE: Record<TabKey, { glow: string; ring: string; icon: string }> = 
 
 const appsCatalog = [
   {
-    key: "instagram" as const,
+    key: "instagram",
     name: "Instagram",
     desc: "Reels, carousels, and creator collaborations.",
     badge: "Reels",
     icon: <Sparkles className="h-4 w-4" />,
   },
   {
-    key: "tiktok" as const,
+    key: "tiktok",
     name: "TikTok",
     desc: "Short-form trends, hooks, and fast edits.",
     badge: "Shorts",
     icon: <Workflow className="h-4 w-4" />,
   },
   {
-    key: "youtube" as const,
+    key: "youtube",
     name: "YouTube",
     desc: "Long-form strategy, thumbnails, and series.",
     badge: "Video",
     icon: <Upload className="h-4 w-4" />,
   },
   {
-    key: "linkedin" as const,
+    key: "linkedin",
     name: "LinkedIn",
     desc: "Founder POV, company news, and lead gen.",
     badge: "B2B",
@@ -190,7 +190,7 @@ const appsCatalog = [
     icon: <RefreshCw className="h-4 w-4" />,
   },
   {
-    key: "meta" as const,
+    key: "meta",
     name: "Meta Ads",
     desc: "Paid social creative + audience testing.",
     badge: "Paid",
@@ -1389,6 +1389,7 @@ const channelMix = [
 ];
 
 function ContentCalendar() {
+  const [planTitle, setPlanTitle] = useState("Untitled content plan");
   const [selectedGoal, setSelectedGoal] = useState("");
   const [prompt, setPrompt] = useState("");
   const [platforms, setPlatforms] = useState({
@@ -1418,11 +1419,33 @@ function ContentCalendar() {
     meta: { label: "Meta Ads", icon: <Search className="h-4 w-4" /> },
   } as const;
 
+  type PlatformKey = keyof typeof platformMeta;
+  type PlanStatus = "In-progress" | "Completed" | "Cancelled" | "Draft";
+  type PlanItem = {
+    id: string;
+    title: string;
+    platform: PlatformKey;
+    type: "Video" | "Image" | "Text";
+    state: string;
+    postState: string;
+    time: string;
+  };
+  type ContentPlan = {
+    id: string;
+    title: string;
+    status: PlanStatus;
+    updated: string;
+    owner: string;
+    schedule: string;
+    platforms: PlatformKey[];
+    items: PlanItem[];
+  };
+
   const approvalQueue = [
     {
       id: "asset-001",
       title: "Hook pack A",
-      platform: "instagram" as const,
+      platform: "instagram",
       type: "Text",
       status: "Pending approval",
       summary: "5 short hooks focused on retention and watch-time.",
@@ -1432,7 +1455,7 @@ function ContentCalendar() {
     {
       id: "asset-002",
       title: "Episode 4 teaser",
-      platform: "youtube" as const,
+      platform: "youtube",
       type: "Video",
       status: "Pending approval",
       summary: "20-second teaser generated from the long-form script.",
@@ -1441,7 +1464,7 @@ function ContentCalendar() {
     {
       id: "asset-003",
       title: "Launch teaser still",
-      platform: "instagram" as const,
+      platform: "instagram",
       type: "Image",
       status: "Needs updates",
       summary: "Static image creative for launch-day countdown post.",
@@ -1452,7 +1475,7 @@ function ContentCalendar() {
   const [approvedAssetIds, setApprovedAssetIds] = useState<Set<string>>(() => new Set());
   const [previewAssetId, setPreviewAssetId] = useState<string | null>(null);
 
-  const [plans, setPlans] = useState([
+  const [plans, setPlans] = useState<ContentPlan[]>([
     {
       id: "plan-current",
       title: "May Product Push",
@@ -1460,12 +1483,12 @@ function ContentCalendar() {
       updated: "Today",
       owner: "Marketing Ops",
       schedule: "May 01 – May 31",
-      platforms: ["instagram", "youtube", "linkedin"] as const,
+      platforms: ["instagram", "youtube", "linkedin"],
       items: [
         {
           id: "pi-1",
           title: "Instagram reel: 3 launch mistakes",
-          platform: "instagram" as const,
+          platform: "instagram",
           type: "Video",
           state: "Approved",
           postState: "Scheduled",
@@ -1474,7 +1497,7 @@ function ContentCalendar() {
         {
           id: "pi-2",
           title: "LinkedIn launch breakdown",
-          platform: "linkedin" as const,
+          platform: "linkedin",
           type: "Text",
           state: "Pending",
           postState: "Draft",
@@ -1483,7 +1506,7 @@ function ContentCalendar() {
         {
           id: "pi-3",
           title: "YouTube teaser",
-          platform: "youtube" as const,
+          platform: "youtube",
           type: "Video",
           state: "Approved",
           postState: "Completed",
@@ -1498,12 +1521,12 @@ function ContentCalendar() {
       updated: "May 01",
       owner: "Demand Gen",
       schedule: "Apr 01 – Apr 30",
-      platforms: ["instagram", "tiktok", "meta"] as const,
+      platforms: ["instagram", "tiktok", "meta"],
       items: [
         {
           id: "pi-4",
           title: "Creator collaboration reel",
-          platform: "instagram" as const,
+          platform: "instagram",
           type: "Video",
           state: "Approved",
           postState: "Completed",
@@ -1512,7 +1535,7 @@ function ContentCalendar() {
         {
           id: "pi-5",
           title: "Carousel: pricing FAQs",
-          platform: "instagram" as const,
+          platform: "instagram",
           type: "Image",
           state: "Approved",
           postState: "Completed",
@@ -1527,12 +1550,12 @@ function ContentCalendar() {
       updated: "Apr 02",
       owner: "Brand Team",
       schedule: "Mar 01 – Mar 31",
-      platforms: ["youtube", "linkedin"] as const,
+      platforms: ["youtube", "linkedin"],
       items: [
         {
           id: "pi-6",
           title: "Weekly shorts recap",
-          platform: "youtube" as const,
+          platform: "youtube",
           type: "Video",
           state: "Approved",
           postState: "Cancelled",
@@ -1583,6 +1606,37 @@ function ContentCalendar() {
           : plan
       )
     );
+  };
+
+
+  const createPlan = (asDraft: boolean) => {
+    const id = `plan-${Date.now()}`;
+    const enabledPlatforms = (Object.keys(platforms) as Array<keyof typeof platforms>)
+      .filter((key) => platforms[key]) as PlatformKey[];
+
+    const newPlan: ContentPlan = {
+      id,
+      title: planTitle.trim() || "Untitled content plan",
+      status: asDraft ? "Draft" : "In-progress",
+      updated: "Just now",
+      owner: "You",
+      schedule: asDraft ? "Draft • schedule not set" : "Upcoming 30 days",
+      platforms: enabledPlatforms.length ? enabledPlatforms : ["instagram"],
+      items: [
+        {
+          id: `${id}-item-1`,
+          title: asDraft ? "Draft content item" : "Generated kickoff asset",
+          platform: enabledPlatforms[0] ?? "instagram",
+          type: "Text",
+          state: asDraft ? "Draft" : "Pending",
+          postState: asDraft ? "Draft" : useScheduler ? "Scheduled" : "Manual posting",
+          time: asDraft ? "Not scheduled" : useScheduler ? "TBD by scheduler" : "Post manually",
+        },
+      ],
+    };
+
+    setPlans((prev) => [newPlan, ...prev]);
+    setSelectedPlanId(id);
   };
 
   return (
@@ -1638,6 +1692,16 @@ function ContentCalendar() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-muted-foreground">Plan title</div>
+                  <Input
+                    value={planTitle}
+                    onChange={(e) => setPlanTitle(e.target.value)}
+                    className="rounded-2xl"
+                    placeholder="Name this content plan"
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <div className="text-xs font-medium text-muted-foreground">Goal</div>
                   <div className="flex flex-wrap gap-2">
@@ -1720,7 +1784,14 @@ function ContentCalendar() {
                   </div>
                 </div>
 
-                <Button className="rounded-2xl">Initiate Plan</Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button className="rounded-2xl" onClick={() => createPlan(false)}>
+                    Launch Content Calendar
+                  </Button>
+                  <Button variant="outline" className="rounded-2xl" onClick={() => createPlan(true)}>
+                    Save as Draft
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
