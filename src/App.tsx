@@ -2027,54 +2027,28 @@ function ContentCalendar() {
 
 
 function LaunchOps() {
-  const [authMode, setAuthMode] = useState<"signin" | "signup" | "forgot">("signin");
+  const [activePage, setActivePage] = useState<
+    | "landing"
+    | "signin"
+    | "signup"
+    | "forgot"
+    | "workspaces"
+    | "billing"
+    | "usage"
+    | "onboarding"
+  >("landing");
   const [selectedWorkspace, setSelectedWorkspace] = useState("Growth Team");
 
-  const launchTracks = [
-    {
-      title: "1) Landing page",
-      owner: "Marketing + Design",
-      status: "Ready",
-      detail: "Value proposition, pricing, social proof, and CTA instrumentation.",
-    },
-    {
-      title: "2) Auth system",
-      owner: "Product + Engineering",
-      status: "In progress",
-      detail: "Sign up, sign in, SSO, forgot password, email verification.",
-    },
-    {
-      title: "3) Workspace architecture",
-      owner: "Platform",
-      status: "Planned",
-      detail: "Multi-workspace switching, roles, invites, permissions.",
-    },
-    {
-      title: "4) Billing + usage",
-      owner: "Finance + Product",
-      status: "In progress",
-      detail: "Plans, subscriptions, payment methods, invoices, limits.",
-    },
-    {
-      title: "5) Launch readiness",
-      owner: "Ops",
-      status: "Planned",
-      detail: "Support flows, incident playbooks, legal, analytics, onboarding.",
-    },
-  ];
-
-  const launchChecklist = [
-    "Email verification + password reset templates",
-    "Workspace invite/accept flow",
-    "Role-based access control (Owner/Admin/Editor/Viewer)",
-    "Free trial + paid plan conversion",
-    "Usage metering for generations, seats, and integrations",
-    "Invoice history, tax details, and payment retries",
-    "In-app onboarding checklist + template workspace",
-    "Audit logs + security settings",
-    "Support center, status page, and SLA policy",
-    "Consent, terms, and privacy disclosures",
-  ];
+  const pages = [
+    { key: "landing", label: "Landing page" },
+    { key: "signin", label: "Sign in" },
+    { key: "signup", label: "Sign up" },
+    { key: "forgot", label: "Forgot password" },
+    { key: "workspaces", label: "Workspaces" },
+    { key: "billing", label: "Billing" },
+    { key: "usage", label: "Usage + limits" },
+    { key: "onboarding", label: "Onboarding + launch" },
+  ] as const;
 
   const workspaces = [
     {
@@ -2105,104 +2079,120 @@ function LaunchOps() {
 
   const selectedWs = workspaces.find((w) => w.name === selectedWorkspace) ?? workspaces[0];
 
-  return (
-    <div className="space-y-4">
-      <SectionHeader
-        title="Launch Ops"
-        subtitle="All workflows you need to ship BAT Social as a production SaaS."
-        right={<Button className="rounded-2xl"><CheckCircle2 className="mr-2 h-4 w-4" /> Launch readiness review</Button>}
-      />
-
-      <Card className="rounded-2xl shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-base">Go-live workflow map</CardTitle>
-          <CardDescription>Operational blueprint from acquisition to billing and retention.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
-          {launchTracks.map((item) => (
-            <div key={item.title} className="rounded-2xl border bg-muted/10 p-3">
-              <div className="flex items-center justify-between gap-2">
-                <div className="text-sm font-semibold">{item.title}</div>
-                <Badge variant="secondary" className="rounded-full">{item.status}</Badge>
-              </div>
-              <div className="mt-1 text-xs text-muted-foreground">Owner: {item.owner}</div>
-              <div className="mt-2 text-xs text-muted-foreground">{item.detail}</div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+  const renderPage = () => {
+    if (activePage === "landing") {
+      return (
         <Card className="rounded-2xl shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base">Authentication journeys</CardTitle>
-            <CardDescription>Sign up, sign in, and forgot password flows with launch requirements.</CardDescription>
+            <CardTitle className="text-base">Landing page workflow</CardTitle>
+            <CardDescription>
+              Build a conversion-ready homepage for BAT Social with all launch sections.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-wrap gap-2">
-              {["signin", "signup", "forgot"].map((mode) => (
-                <Button
-                  key={mode}
-                  variant={authMode === mode ? "default" : "ghost"}
-                  className="rounded-2xl"
-                  onClick={() => setAuthMode(mode as "signin" | "signup" | "forgot")}
-                >
-                  {mode === "signin" ? "Sign in" : mode === "signup" ? "Sign up" : "Forgot password"}
-                </Button>
-              ))}
+          <CardContent className="space-y-3">
+            {[
+              "Hero: value prop + CTA to start trial",
+              "Problem/Solution: why BAT Brain + workflows matter",
+              "Feature blocks: Campaign Hub, Create Content, Content Calendar, BAT Brain",
+              "Trust: case studies, metrics, testimonials",
+              "Pricing teaser + plan comparison",
+              "Footer: docs, support, legal, status",
+            ].map((item) => (
+              <div key={item} className="rounded-2xl border bg-muted/10 p-3 text-sm">
+                {item}
+              </div>
+            ))}
+            <div className="rounded-2xl border bg-muted/10 p-3">
+              <div className="text-sm font-semibold">Instrumentation</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                Track CTA clicks, demo requests, pricing views, sign-up conversion, and bounce by section.
+              </div>
             </div>
-
-            {authMode === "signin" ? (
-              <div className="rounded-2xl border bg-muted/10 p-4 space-y-3">
-                <div className="text-sm font-semibold">Sign in flow</div>
-                <Input className="rounded-2xl" placeholder="Work email" />
-                <Input className="rounded-2xl" placeholder="Password" type="password" />
-                <div className="grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
-                  <Pill>SSO (Google/Microsoft)</Pill>
-                  <Pill>Magic link optional</Pill>
-                  <Pill>MFA for admins</Pill>
-                  <Pill>Device/session controls</Pill>
-                </div>
-              </div>
-            ) : null}
-
-            {authMode === "signup" ? (
-              <div className="rounded-2xl border bg-muted/10 p-4 space-y-3">
-                <div className="text-sm font-semibold">Sign up flow</div>
-                <Input className="rounded-2xl" placeholder="Full name" />
-                <Input className="rounded-2xl" placeholder="Work email" />
-                <Input className="rounded-2xl" placeholder="Create password" type="password" />
-                <div className="grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
-                  <Pill>Email verification required</Pill>
-                  <Pill>Workspace creation on first login</Pill>
-                  <Pill>Invite teammates after onboarding</Pill>
-                  <Pill>Trial starts after verification</Pill>
-                </div>
-              </div>
-            ) : null}
-
-            {authMode === "forgot" ? (
-              <div className="rounded-2xl border bg-muted/10 p-4 space-y-3">
-                <div className="text-sm font-semibold">Forgot password flow</div>
-                <Input className="rounded-2xl" placeholder="Account email" />
-                <div className="text-xs text-muted-foreground">
-                  Send reset link with expiry + one-time token. Include fallback support flow.
-                </div>
-                <div className="grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
-                  <Pill>Reset token expires in 15 min</Pill>
-                  <Pill>Session revocation option</Pill>
-                  <Pill>Suspicious activity email alert</Pill>
-                  <Pill>Rate limits + captcha</Pill>
-                </div>
-              </div>
-            ) : null}
           </CardContent>
         </Card>
+      );
+    }
 
+    if (activePage === "signin") {
+      return (
         <Card className="rounded-2xl shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base">Workspace management</CardTitle>
-            <CardDescription>Support multi-brand teams with isolated memory, access, and billing.</CardDescription>
+            <CardTitle className="text-base">Sign in page</CardTitle>
+            <CardDescription>Production auth flow with security and recovery paths.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input className="rounded-2xl" placeholder="Work email" />
+            <Input className="rounded-2xl" placeholder="Password" type="password" />
+            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+              <Pill>Google SSO</Pill>
+              <Pill>Microsoft SSO</Pill>
+              <Pill>MFA required for admins</Pill>
+              <Pill>Session device history</Pill>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button className="rounded-2xl">Continue</Button>
+              <Button variant="ghost" className="rounded-2xl" onClick={() => setActivePage("forgot")}>
+                Forgot password?
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activePage === "signup") {
+      return (
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Sign up page</CardTitle>
+            <CardDescription>Create account, verify email, then create first workspace.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input className="rounded-2xl" placeholder="Full name" />
+            <Input className="rounded-2xl" placeholder="Work email" />
+            <Input className="rounded-2xl" placeholder="Password" type="password" />
+            <Input className="rounded-2xl" placeholder="Workspace name" />
+            <div className="grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
+              <Pill>Email verification required</Pill>
+              <Pill>Terms + privacy consent</Pill>
+              <Pill>Optional invite teammates</Pill>
+              <Pill>Start free trial</Pill>
+            </div>
+            <Button className="rounded-2xl">Create account</Button>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activePage === "forgot") {
+      return (
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Forgot password page</CardTitle>
+            <CardDescription>
+              Secure recovery with short-lived token, alerts, and reset confirmation.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input className="rounded-2xl" placeholder="Account email" />
+            <Button className="rounded-2xl">Send reset link</Button>
+            <div className="grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
+              <Pill>Token expires in 15 minutes</Pill>
+              <Pill>One-time use link</Pill>
+              <Pill>Revoke active sessions</Pill>
+              <Pill>Suspicious reset alert</Pill>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activePage === "workspaces") {
+      return (
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Workspaces page</CardTitle>
+            <CardDescription>Support multi-brand organizations with clear tenancy boundaries.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Select value={selectedWorkspace} onValueChange={setSelectedWorkspace}>
@@ -2211,14 +2201,18 @@ function LaunchOps() {
               </SelectTrigger>
               <SelectContent>
                 {workspaces.map((w) => (
-                  <SelectItem key={w.name} value={w.name}>{w.name}</SelectItem>
+                  <SelectItem key={w.name} value={w.name}>
+                    {w.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             <div className="rounded-2xl border bg-muted/10 p-4 text-sm">
               <div className="font-semibold">{selectedWs.name}</div>
-              <div className="mt-1 text-xs text-muted-foreground">Role: {selectedWs.role} • Members: {selectedWs.members}</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                Role: {selectedWs.role} • Members: {selectedWs.members}
+              </div>
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                 <div className="rounded-xl border bg-background p-2">Plan: {selectedWs.plan}</div>
                 <div className="rounded-xl border bg-background p-2">Usage: {selectedWs.usage}</div>
@@ -2234,51 +2228,138 @@ function LaunchOps() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      );
+    }
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+    if (activePage === "billing") {
+      return (
         <Card className="rounded-2xl shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base">Billing, subscriptions, and usage</CardTitle>
-            <CardDescription>Core commerce workflows needed to run a SaaS launch.</CardDescription>
+            <CardTitle className="text-base">Billing + subscriptions page</CardTitle>
+            <CardDescription>Monetization flows needed for launch and post-launch lifecycle.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {[
-              "Plan selection + free trial",
-              "Upgrade, downgrade, cancel, and reactivation",
-              "Seat-based and usage-based billing",
-              "Payment methods + dunning retries",
-              "Invoices, receipts, and tax settings",
-              "Usage alerts and hard/soft limits",
+              "Plan catalog (Starter/Pro/Scale/Enterprise)",
+              "Start trial + convert to paid",
+              "Upgrade/downgrade/cancel/reactivate",
+              "Payment methods, invoices, receipts, tax IDs",
+              "Failed payment retries + dunning",
+              "Billing contacts + procurement support",
             ].map((item) => (
               <div key={item} className="rounded-2xl border bg-muted/10 p-3 text-sm">{item}</div>
             ))}
             <div className="mt-2">
-              <Progress value={68} />
-              <div className="mt-2 text-xs text-muted-foreground">Billing workflow readiness: 68%</div>
+              <Progress value={71} />
+              <div className="mt-2 text-xs text-muted-foreground">Billing implementation readiness: 71%</div>
             </div>
           </CardContent>
         </Card>
+      );
+    }
 
+    if (activePage === "usage") {
+      return (
         <Card className="rounded-2xl shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base">Launch-critical features you should add</CardTitle>
-            <CardDescription>Recommended workflows beyond your requested list.</CardDescription>
+            <CardTitle className="text-base">Usage + limits page</CardTitle>
+            <CardDescription>Transparent usage metering and limit handling for teams.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border bg-muted/10 p-3">
+                <div className="text-xs text-muted-foreground">Generations</div>
+                <div className="mt-1 text-lg font-semibold">8,240 / 10,000</div>
+                <Progress className="mt-2" value={82} />
+              </div>
+              <div className="rounded-2xl border bg-muted/10 p-3">
+                <div className="text-xs text-muted-foreground">Seats</div>
+                <div className="mt-1 text-lg font-semibold">14 / 20</div>
+                <Progress className="mt-2" value={70} />
+              </div>
+              <div className="rounded-2xl border bg-muted/10 p-3">
+                <div className="text-xs text-muted-foreground">Integrations</div>
+                <div className="mt-1 text-lg font-semibold">5 / 8</div>
+                <Progress className="mt-2" value={62} />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button className="rounded-2xl">Upgrade plan</Button>
+              <Button variant="ghost" className="rounded-2xl">Set usage alerts</Button>
+              <Button variant="ghost" className="rounded-2xl">View usage history</Button>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+      <Card className="rounded-2xl shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base">Onboarding + launch readiness page</CardTitle>
+          <CardDescription>Final workflows needed before going public.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {[
+            "In-app onboarding checklist + sample workspace",
+            "Role permissions + audit logs",
+            "Support center + status page",
+            "Legal: terms, privacy, DPA",
+            "Incident runbooks + on-call handoff",
+            "Analytics dashboard for activation + retention",
+          ].map((item) => (
+            <div key={item} className="flex items-start gap-2 rounded-2xl border bg-muted/10 p-3 text-sm">
+              <CheckCircle2 className="mt-0.5 h-4 w-4" />
+              <span>{item}</span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <SectionHeader
+        title="Launch Ops"
+        subtitle="Build this as a full web app: each go-live workflow now has its own page."
+        right={
+          <Button className="rounded-2xl">
+            <CheckCircle2 className="mr-2 h-4 w-4" /> Launch readiness review
+          </Button>
+        }
+      />
+
+      <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Pages</CardTitle>
+            <CardDescription>Production app workflow pages.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {launchChecklist.map((item) => (
-              <div key={item} className="flex items-start gap-2 rounded-2xl border bg-muted/10 p-3 text-sm">
-                <CheckCircle2 className="mt-0.5 h-4 w-4" />
-                <span>{item}</span>
-              </div>
+            {pages.map((page) => (
+              <button
+                key={page.key}
+                type="button"
+                onClick={() => setActivePage(page.key)}
+                className={[
+                  "w-full rounded-2xl border px-3 py-2 text-left text-sm transition-all",
+                  activePage === page.key
+                    ? "border-primary/50 bg-primary/15"
+                    : "bg-background/70 hover:border-primary/30",
+                ].join(" ")}
+              >
+                {page.label}
+              </button>
             ))}
           </CardContent>
         </Card>
+
+        {renderPage()}
       </div>
     </div>
   );
 }
-
 function runSmokeTests() {
   const uniq = (arr: string[]) => new Set(arr).size === arr.length;
 
