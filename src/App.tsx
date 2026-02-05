@@ -121,7 +121,7 @@ const TAB_META: TabMeta[] = [
   { key: "chat", label: "Campaign Hub", icon: <Sparkles className="h-4 w-4" /> },
   { key: "generate", label: "Create Content", icon: <FileText className="h-4 w-4" /> },
   { key: "calendar", label: "Content Calendar", icon: <Calendar className="h-4 w-4" /> },
-  { key: "brain", label: "BAT Studio", icon: <Brain className="h-4 w-4" /> },
+  { key: "brain", label: "BAT Brain", icon: <Brain className="h-4 w-4" /> },
   { key: "analytics", label: "Performance", icon: <BarChart3 className="h-4 w-4" /> },
 ];
 
@@ -1024,7 +1024,7 @@ function GenerateStudio({
         <CardHeader className="gap-2">
           <CardTitle className="text-xl">Generate anything</CardTitle>
           <CardDescription>
-            BAT Studio turns your data and memory into media, policies, diagrams, and
+            BAT Brain turns your marketing memory into media, campaign plans, and
             execution-ready artifacts.
           </CardDescription>
         </CardHeader>
@@ -2518,144 +2518,242 @@ export default function BatTabPreview() {
               {tab === "brain" ? (
                 <motion.div key="brain" {...FADE} className="space-y-4">
                   <SectionHeader
-                    title="BAT Studio"
-                    subtitle="Connect channels, manage workflows, and approve data access."
+                    title="BAT Brain"
+                    subtitle="Your social marketing memory hub: capture brand intelligence, connect platforms, and control what powers generation."
                     right={
                       <div className="flex items-center gap-2">
                         <Button className="rounded-2xl" onClick={() => setApiOpen(true)}>
-                          <Plug className="mr-2 h-4 w-4" /> Add API
+                          <Plug className="mr-2 h-4 w-4" /> Connect source
                         </Button>
                         <Button
                           variant="ghost"
                           className="rounded-2xl"
                           onClick={() => setUploadOpen(true)}
                         >
-                          <Upload className="mr-2 h-4 w-4" /> Upload
+                          <Upload className="mr-2 h-4 w-4" /> Add memory input
                         </Button>
                       </div>
                     }
                   />
 
-                  <div className="grid gap-4 md:grid-cols-3">
+                  <div className="grid gap-4 md:grid-cols-4">
                     <Stat
-                      label="Connected channels"
+                      label="Connected platforms"
                       value={`${connectedCount} / ${appsCatalog.length}`}
-                      hint="Channels BAT can read and learn from."
+                      hint="Social + paid channels BAT can learn from."
                       icon={<Plug className="h-4 w-4" />}
                     />
                     <Stat
-                      label="Assets indexed"
+                      label="Brand inputs indexed"
                       value={docsIndexed}
-                      hint="Creative assets ready for reuse."
+                      hint="Briefs, voice docs, scripts, and campaign assets."
                       icon={<Database className="h-4 w-4" />}
                     />
                     <Stat
-                      label="Active workflows"
+                      label="Signals tracked"
+                      value={signals}
+                      hint="Performance and audience patterns extracted."
+                      icon={<BarChart3 className="h-4 w-4" />}
+                    />
+                    <Stat
+                      label="Active memory workflows"
                       value={runningCount}
-                      hint="Always-on monitors across channels."
+                      hint="Always-on ingestion and quality checks."
                       icon={<Workflow className="h-4 w-4" />}
                     />
                   </div>
 
-                  <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-                    <Card className="rounded-2xl shadow-sm">
-                      <CardHeader>
-                        <CardTitle className="text-base">Integrations</CardTitle>
-                        <CardDescription>
-                          Connect channels BAT can read and learn from.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="grid gap-4 md:grid-cols-2">
-                        {appsCatalog.map((app) => (
-                          <IntegrationCard
-                            key={app.key}
-                            app={app}
-                            connected={!!connected[app.key]}
-                            onConnect={() =>
-                              setConnected((c) => ({ ...c, [app.key]: true }))
-                            }
-                            onDisconnect={() =>
-                              setConnected((c) => ({ ...c, [app.key]: false }))
-                            }
-                          />
-                        ))}
-                      </CardContent>
-                    </Card>
+                  <Card className="rounded-2xl shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-base">Memory input workflow</CardTitle>
+                      <CardDescription>
+                        Explicit flow for social marketing teams to feed BAT Brain.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid gap-3 md:grid-cols-4">
+                      {[
+                        {
+                          title: "1) Connect channels",
+                          detail: "Instagram, TikTok, YouTube, LinkedIn, paid platforms.",
+                        },
+                        {
+                          title: "2) Add brand context",
+                          detail: "Brand voice, offers, audience segments, campaign goals.",
+                        },
+                        {
+                          title: "3) Approve memory",
+                          detail: "Decide what BAT can use in content generation.",
+                        },
+                        {
+                          title: "4) Generate with confidence",
+                          detail: "Use grounded memory for briefs, posts, scripts, and plans.",
+                        },
+                      ].map((item) => (
+                        <div key={item.title} className="rounded-2xl border bg-muted/10 p-3">
+                          <div className="text-sm font-semibold">{item.title}</div>
+                          <div className="mt-1 text-xs text-muted-foreground">{item.detail}</div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
 
+                  <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
                     <Card className="rounded-2xl shadow-sm">
                       <CardHeader>
-                        <CardTitle className="text-base">Data approval</CardTitle>
+                        <CardTitle className="text-base">Social + marketing integrations</CardTitle>
                         <CardDescription>
-                          Control what BAT can use in outputs.
+                          Sources BAT Brain uses later in content and campaign generation.
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-3">
-                        <ApprovalRow label="Operations" defaultOn />
-                        <ApprovalRow label="Marketing" defaultOn />
-                        <ApprovalRow label="Finance" defaultOn={false} />
-                        <ApprovalRow label="People / HR" defaultOn={false} />
-                        <ApprovalRow label="Customer support" defaultOn />
-                        <div className="pt-2 text-xs text-muted-foreground inline-flex items-center gap-2">
-                          <Lock className="h-4 w-4" /> You can revoke access anytime.
-                        </div>
+                        {appsCatalog.map((app) => {
+                          const isConnected = !!connected[app.key];
+                          return (
+                            <div
+                              key={app.key}
+                              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-muted/10 p-3"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl border bg-background">
+                                  {app.icon}
+                                </div>
+                                <div>
+                                  <div className="text-sm font-semibold">{app.name}</div>
+                                  <div className="text-xs text-muted-foreground">{app.desc}</div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="rounded-full">
+                                  {isConnected ? "Connected" : "Not connected"}
+                                </Badge>
+                                <Button
+                                  variant={isConnected ? "ghost" : "default"}
+                                  className="rounded-2xl"
+                                  onClick={() =>
+                                    setConnected((c) => ({ ...c, [app.key]: !c[app.key] }))
+                                  }
+                                >
+                                  {isConnected ? "Disconnect" : "Connect"}
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </CardContent>
                     </Card>
+
+                    <div className="space-y-4">
+                      <Card className="rounded-2xl shadow-sm">
+                        <CardHeader>
+                          <CardTitle className="text-base">What BAT Brain remembers</CardTitle>
+                          <CardDescription>
+                            Core memory buckets used to ground social outputs.
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          {[
+                            {
+                              title: "Brand voice + messaging",
+                              detail: "Tone, banned phrases, claims policy, CTAs.",
+                              count: "14 docs",
+                            },
+                            {
+                              title: "Audience + ICP",
+                              detail: "Personas, objections, motivations, lifecycle stages.",
+                              count: "9 docs",
+                            },
+                            {
+                              title: "Campaign playbooks",
+                              detail: "Past launches, winning hooks, creative frameworks.",
+                              count: "27 docs",
+                            },
+                            {
+                              title: "Performance memory",
+                              detail: "Top posts, ad fatigue patterns, retention signals.",
+                              count: "Live signals",
+                            },
+                          ].map((bucket) => (
+                            <div key={bucket.title} className="rounded-2xl border bg-muted/10 p-3">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="text-sm font-semibold">{bucket.title}</div>
+                                <Badge variant="secondary" className="rounded-full">
+                                  {bucket.count}
+                                </Badge>
+                              </div>
+                              <div className="mt-1 text-xs text-muted-foreground">{bucket.detail}</div>
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+
+                      <Card className="rounded-2xl shadow-sm">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-base">Memory quality + control</CardTitle>
+                          <CardDescription>
+                            Track indexing quality and enforce source governance.
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm font-medium">Index progress</div>
+                            <div className="text-sm text-muted-foreground">{indexProgress}%</div>
+                          </div>
+                          <Progress value={indexProgress} />
+
+                          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                            <div className="rounded-2xl border bg-muted/20 p-3">
+                              <div className="font-medium text-foreground">{docsIndexed}</div>
+                              <div className="mt-0.5">Memory docs ready</div>
+                            </div>
+                            <div className="rounded-2xl border bg-muted/20 p-3">
+                              <div className="font-medium text-foreground">{signals}</div>
+                              <div className="mt-0.5">Signals validated</div>
+                            </div>
+                          </div>
+
+                          <div className="rounded-2xl border bg-muted/10 p-3">
+                            <div className="text-xs font-semibold">Memory safety controls</div>
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              Restrict generation to approved sources only. Revoke any source at any time.
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <Badge variant="secondary" className="rounded-full">Approved only</Badge>
+                              <Badge variant="secondary" className="rounded-full">PII redaction</Badge>
+                              <Badge variant="secondary" className="rounded-full">Audit trail</Badge>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                              <Lock className="h-4 w-4" /> Private to your org
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="rounded-2xl hover:scale-[1.02] transition-transform duration-200"
+                              onClick={() =>
+                                setIndexProgress((p) => (p >= 96 ? 74 : Math.min(99, p + 7)))
+                              }
+                            >
+                              <RefreshCw className="mr-2 h-4 w-4" /> Re-index memory
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   </div>
 
                   <Card className="rounded-2xl shadow-sm">
                     <CardHeader>
-                      <CardTitle className="text-base">Workflows</CardTitle>
+                      <CardTitle className="text-base">Memory automation workflows</CardTitle>
                       <CardDescription>
-                        Always-on monitors across social and paid media.
+                        Keep BAT Brain up-to-date with automated ingestion and review loops.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {workflowState.map((wf) => (
                         <WorkflowRow key={wf.id} wf={wf} onToggle={onToggleWorkflow} />
                       ))}
-                    </CardContent>
-                  </Card>
-
-                  <Card className="rounded-2xl shadow-sm">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base">Memory status</CardTitle>
-                      <CardDescription>
-                        Indexing + signal extraction runs continuously.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm font-medium">Index progress</div>
-                        <div className="text-sm text-muted-foreground">{indexProgress}%</div>
-                      </div>
-                      <Progress value={indexProgress} />
-
-                      <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                        <div className="rounded-2xl border bg-muted/20 p-3">
-                          <div className="font-medium text-foreground">{docsIndexed}</div>
-                          <div className="mt-0.5">Docs indexed</div>
-                        </div>
-                        <div className="rounded-2xl border bg-muted/20 p-3">
-                          <div className="font-medium text-foreground">{signals}</div>
-                          <div className="mt-0.5">Signals tracked</div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
-                          <Lock className="h-4 w-4" /> Private to your org
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="rounded-2xl hover:scale-[1.02] transition-transform duration-200"
-                          onClick={() =>
-                            setIndexProgress((p) => (p >= 96 ? 74 : Math.min(99, p + 7)))
-                          }
-                        >
-                          <RefreshCw className="mr-2 h-4 w-4" /> Refresh
-                        </Button>
-                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
