@@ -89,7 +89,13 @@ const FADE = {
   transition: { type: "spring", stiffness: 220, damping: 22 },
 } as const;
 
-type TabKey = "chat" | "generate" | "calendar" | "brain" | "analytics";
+type TabKey =
+  | "chat"
+  | "generate"
+  | "calendar"
+  | "brain"
+  | "analytics"
+  | "launch";
 
 type TabMeta = { key: TabKey; label: string; icon: React.ReactNode };
 
@@ -123,6 +129,7 @@ const TAB_META: TabMeta[] = [
   { key: "calendar", label: "Content Calendar", icon: <Calendar className="h-4 w-4" /> },
   { key: "brain", label: "BAT Brain", icon: <Brain className="h-4 w-4" /> },
   { key: "analytics", label: "Performance", icon: <BarChart3 className="h-4 w-4" /> },
+  { key: "launch", label: "Launch Ops", icon: <Globe className="h-4 w-4" /> },
 ];
 
 const TAB_STYLE: Record<TabKey, { glow: string; ring: string; icon: string }> = {
@@ -150,6 +157,11 @@ const TAB_STYLE: Record<TabKey, { glow: string; ring: string; icon: string }> = 
     glow: "from-cyan-500/20 via-sky-500/15 to-indigo-500/20",
     ring: "ring-cyan-500/20",
     icon: "text-cyan-200/80",
+  },
+  launch: {
+    glow: "from-violet-500/20 via-fuchsia-500/15 to-pink-500/20",
+    ring: "ring-violet-500/20",
+    icon: "text-violet-200/80",
   },
 };
 
@@ -491,7 +503,7 @@ function TopBar({
 function TabNav({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
   return (
     <div className="rounded-2xl border bg-muted/20 p-1.5 sm:p-2 shadow-sm">
-      <div className="grid grid-cols-2 gap-1.5 md:grid-cols-5 md:gap-2">
+      <div className="grid grid-cols-2 gap-1.5 md:grid-cols-6 md:gap-2">
         {TAB_META.map((t) => {
           const styles = TAB_STYLE[t.key];
           const active = tab === t.key;
@@ -2013,6 +2025,260 @@ function ContentCalendar() {
   );
 }
 
+
+function LaunchOps() {
+  const [authMode, setAuthMode] = useState<"signin" | "signup" | "forgot">("signin");
+  const [selectedWorkspace, setSelectedWorkspace] = useState("Growth Team");
+
+  const launchTracks = [
+    {
+      title: "1) Landing page",
+      owner: "Marketing + Design",
+      status: "Ready",
+      detail: "Value proposition, pricing, social proof, and CTA instrumentation.",
+    },
+    {
+      title: "2) Auth system",
+      owner: "Product + Engineering",
+      status: "In progress",
+      detail: "Sign up, sign in, SSO, forgot password, email verification.",
+    },
+    {
+      title: "3) Workspace architecture",
+      owner: "Platform",
+      status: "Planned",
+      detail: "Multi-workspace switching, roles, invites, permissions.",
+    },
+    {
+      title: "4) Billing + usage",
+      owner: "Finance + Product",
+      status: "In progress",
+      detail: "Plans, subscriptions, payment methods, invoices, limits.",
+    },
+    {
+      title: "5) Launch readiness",
+      owner: "Ops",
+      status: "Planned",
+      detail: "Support flows, incident playbooks, legal, analytics, onboarding.",
+    },
+  ];
+
+  const launchChecklist = [
+    "Email verification + password reset templates",
+    "Workspace invite/accept flow",
+    "Role-based access control (Owner/Admin/Editor/Viewer)",
+    "Free trial + paid plan conversion",
+    "Usage metering for generations, seats, and integrations",
+    "Invoice history, tax details, and payment retries",
+    "In-app onboarding checklist + template workspace",
+    "Audit logs + security settings",
+    "Support center, status page, and SLA policy",
+    "Consent, terms, and privacy disclosures",
+  ];
+
+  const workspaces = [
+    {
+      name: "Growth Team",
+      members: 8,
+      role: "Owner",
+      plan: "Scale",
+      usage: "72%",
+      billing: "$499/mo",
+    },
+    {
+      name: "Brand Studio",
+      members: 4,
+      role: "Admin",
+      plan: "Pro",
+      usage: "41%",
+      billing: "$199/mo",
+    },
+    {
+      name: "Agency Clients",
+      members: 12,
+      role: "Editor",
+      plan: "Enterprise",
+      usage: "64%",
+      billing: "$1,200/mo",
+    },
+  ];
+
+  const selectedWs = workspaces.find((w) => w.name === selectedWorkspace) ?? workspaces[0];
+
+  return (
+    <div className="space-y-4">
+      <SectionHeader
+        title="Launch Ops"
+        subtitle="All workflows you need to ship BAT Social as a production SaaS."
+        right={<Button className="rounded-2xl"><CheckCircle2 className="mr-2 h-4 w-4" /> Launch readiness review</Button>}
+      />
+
+      <Card className="rounded-2xl shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base">Go-live workflow map</CardTitle>
+          <CardDescription>Operational blueprint from acquisition to billing and retention.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+          {launchTracks.map((item) => (
+            <div key={item.title} className="rounded-2xl border bg-muted/10 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-sm font-semibold">{item.title}</div>
+                <Badge variant="secondary" className="rounded-full">{item.status}</Badge>
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">Owner: {item.owner}</div>
+              <div className="mt-2 text-xs text-muted-foreground">{item.detail}</div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Authentication journeys</CardTitle>
+            <CardDescription>Sign up, sign in, and forgot password flows with launch requirements.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {["signin", "signup", "forgot"].map((mode) => (
+                <Button
+                  key={mode}
+                  variant={authMode === mode ? "default" : "ghost"}
+                  className="rounded-2xl"
+                  onClick={() => setAuthMode(mode as "signin" | "signup" | "forgot")}
+                >
+                  {mode === "signin" ? "Sign in" : mode === "signup" ? "Sign up" : "Forgot password"}
+                </Button>
+              ))}
+            </div>
+
+            {authMode === "signin" ? (
+              <div className="rounded-2xl border bg-muted/10 p-4 space-y-3">
+                <div className="text-sm font-semibold">Sign in flow</div>
+                <Input className="rounded-2xl" placeholder="Work email" />
+                <Input className="rounded-2xl" placeholder="Password" type="password" />
+                <div className="grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
+                  <Pill>SSO (Google/Microsoft)</Pill>
+                  <Pill>Magic link optional</Pill>
+                  <Pill>MFA for admins</Pill>
+                  <Pill>Device/session controls</Pill>
+                </div>
+              </div>
+            ) : null}
+
+            {authMode === "signup" ? (
+              <div className="rounded-2xl border bg-muted/10 p-4 space-y-3">
+                <div className="text-sm font-semibold">Sign up flow</div>
+                <Input className="rounded-2xl" placeholder="Full name" />
+                <Input className="rounded-2xl" placeholder="Work email" />
+                <Input className="rounded-2xl" placeholder="Create password" type="password" />
+                <div className="grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
+                  <Pill>Email verification required</Pill>
+                  <Pill>Workspace creation on first login</Pill>
+                  <Pill>Invite teammates after onboarding</Pill>
+                  <Pill>Trial starts after verification</Pill>
+                </div>
+              </div>
+            ) : null}
+
+            {authMode === "forgot" ? (
+              <div className="rounded-2xl border bg-muted/10 p-4 space-y-3">
+                <div className="text-sm font-semibold">Forgot password flow</div>
+                <Input className="rounded-2xl" placeholder="Account email" />
+                <div className="text-xs text-muted-foreground">
+                  Send reset link with expiry + one-time token. Include fallback support flow.
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
+                  <Pill>Reset token expires in 15 min</Pill>
+                  <Pill>Session revocation option</Pill>
+                  <Pill>Suspicious activity email alert</Pill>
+                  <Pill>Rate limits + captcha</Pill>
+                </div>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Workspace management</CardTitle>
+            <CardDescription>Support multi-brand teams with isolated memory, access, and billing.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Select value={selectedWorkspace} onValueChange={setSelectedWorkspace}>
+              <SelectTrigger className="rounded-2xl">
+                <SelectValue placeholder="Select workspace" />
+              </SelectTrigger>
+              <SelectContent>
+                {workspaces.map((w) => (
+                  <SelectItem key={w.name} value={w.name}>{w.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="rounded-2xl border bg-muted/10 p-4 text-sm">
+              <div className="font-semibold">{selectedWs.name}</div>
+              <div className="mt-1 text-xs text-muted-foreground">Role: {selectedWs.role} • Members: {selectedWs.members}</div>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                <div className="rounded-xl border bg-background p-2">Plan: {selectedWs.plan}</div>
+                <div className="rounded-xl border bg-background p-2">Usage: {selectedWs.usage}</div>
+                <div className="rounded-xl border bg-background p-2">Billing: {selectedWs.billing}</div>
+                <div className="rounded-xl border bg-background p-2">Memory scope: isolated</div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button className="rounded-2xl">Create workspace</Button>
+              <Button variant="ghost" className="rounded-2xl">Invite members</Button>
+              <Button variant="ghost" className="rounded-2xl">Manage roles</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Billing, subscriptions, and usage</CardTitle>
+            <CardDescription>Core commerce workflows needed to run a SaaS launch.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              "Plan selection + free trial",
+              "Upgrade, downgrade, cancel, and reactivation",
+              "Seat-based and usage-based billing",
+              "Payment methods + dunning retries",
+              "Invoices, receipts, and tax settings",
+              "Usage alerts and hard/soft limits",
+            ].map((item) => (
+              <div key={item} className="rounded-2xl border bg-muted/10 p-3 text-sm">{item}</div>
+            ))}
+            <div className="mt-2">
+              <Progress value={68} />
+              <div className="mt-2 text-xs text-muted-foreground">Billing workflow readiness: 68%</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Launch-critical features you should add</CardTitle>
+            <CardDescription>Recommended workflows beyond your requested list.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {launchChecklist.map((item) => (
+              <div key={item} className="flex items-start gap-2 rounded-2xl border bg-muted/10 p-3 text-sm">
+                <CheckCircle2 className="mt-0.5 h-4 w-4" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 function runSmokeTests() {
   const uniq = (arr: string[]) => new Set(arr).size === arr.length;
 
@@ -2760,6 +3026,12 @@ export default function BatTabPreview() {
                       ))}
                     </CardContent>
                   </Card>
+                </motion.div>
+              ) : null}
+
+              {tab === "launch" ? (
+                <motion.div key="launch" {...FADE} className="space-y-4">
+                  <LaunchOps />
                 </motion.div>
               ) : null}
 
