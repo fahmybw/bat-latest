@@ -1389,7 +1389,8 @@ const channelMix = [
 ];
 
 function ContentCalendar() {
-  const [purpose, setPurpose] = useState("Audience growth + product launch");
+  const [selectedGoal, setSelectedGoal] = useState("");
+  const [prompt, setPrompt] = useState("");
   const [platforms, setPlatforms] = useState({
     instagram: true,
     tiktok: true,
@@ -1398,12 +1399,30 @@ function ContentCalendar() {
   });
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [autoApproval, setAutoApproval] = useState(false);
+  const [useScheduler, setUseScheduler] = useState(true);
+
+  const goalOptions = [
+    "Awareness",
+    "Engagement",
+    "Lead generation",
+    "Product launch",
+    "Retention",
+  ];
+
+  const platformMeta = {
+    instagram: { label: "Instagram", icon: <Sparkles className="h-4 w-4" /> },
+    tiktok: { label: "TikTok", icon: <Workflow className="h-4 w-4" /> },
+    youtube: { label: "YouTube", icon: <Upload className="h-4 w-4" /> },
+    linkedin: { label: "LinkedIn", icon: <MessagesSquare className="h-4 w-4" /> },
+    x: { label: "X / Twitter", icon: <RefreshCw className="h-4 w-4" /> },
+    meta: { label: "Meta Ads", icon: <Search className="h-4 w-4" /> },
+  } as const;
 
   const approvalQueue = [
     {
       id: "asset-001",
       title: "Hook pack A",
-      platform: "Instagram",
+      platform: "instagram" as const,
       type: "Text",
       status: "Pending approval",
       summary: "5 short hooks focused on retention and watch-time.",
@@ -1413,7 +1432,7 @@ function ContentCalendar() {
     {
       id: "asset-002",
       title: "Episode 4 teaser",
-      platform: "YouTube",
+      platform: "youtube" as const,
       type: "Video",
       status: "Pending approval",
       summary: "20-second teaser generated from the long-form script.",
@@ -1421,32 +1440,32 @@ function ContentCalendar() {
     },
     {
       id: "asset-003",
-      title: "Trend remix",
-      platform: "TikTok",
-      type: "Video",
+      title: "Launch teaser still",
+      platform: "instagram" as const,
+      type: "Image",
       status: "Needs updates",
-      summary: "Trend response with caption callouts and CTA overlay.",
-      preview: "video",
+      summary: "Static image creative for launch-day countdown post.",
+      preview: "image",
     },
   ];
 
   const [approvedAssetIds, setApprovedAssetIds] = useState<Set<string>>(() => new Set());
   const [previewAssetId, setPreviewAssetId] = useState<string | null>(null);
 
-  const previewAsset = approvalQueue.find((item) => item.id === previewAssetId) ?? null;
-
-  const plans = [
+  const [plans, setPlans] = useState([
     {
       id: "plan-current",
       title: "May Product Push",
-      status: "In progress",
+      status: "In-progress",
       updated: "Today",
       owner: "Marketing Ops",
       schedule: "May 01 – May 31",
+      platforms: ["instagram", "youtube", "linkedin"] as const,
       items: [
         {
           id: "pi-1",
           title: "Instagram reel: 3 launch mistakes",
+          platform: "instagram" as const,
           type: "Video",
           state: "Approved",
           postState: "Scheduled",
@@ -1455,6 +1474,7 @@ function ContentCalendar() {
         {
           id: "pi-2",
           title: "LinkedIn launch breakdown",
+          platform: "linkedin" as const,
           type: "Text",
           state: "Pending",
           postState: "Draft",
@@ -1463,9 +1483,10 @@ function ContentCalendar() {
         {
           id: "pi-3",
           title: "YouTube teaser",
+          platform: "youtube" as const,
           type: "Video",
           state: "Approved",
-          postState: "Posted",
+          postState: "Completed",
           time: "May 03, 12:00",
         },
       ],
@@ -1473,25 +1494,28 @@ function ContentCalendar() {
     {
       id: "plan-april",
       title: "April Launch Sprint",
-      status: "Published",
+      status: "Completed",
       updated: "May 01",
       owner: "Demand Gen",
       schedule: "Apr 01 – Apr 30",
+      platforms: ["instagram", "tiktok", "meta"] as const,
       items: [
         {
           id: "pi-4",
           title: "Creator collaboration reel",
+          platform: "instagram" as const,
           type: "Video",
           state: "Approved",
-          postState: "Posted",
+          postState: "Completed",
           time: "Apr 27, 15:00",
         },
         {
           id: "pi-5",
           title: "Carousel: pricing FAQs",
+          platform: "instagram" as const,
           type: "Image",
           state: "Approved",
-          postState: "Posted",
+          postState: "Completed",
           time: "Apr 24, 10:00",
         },
       ],
@@ -1499,25 +1523,29 @@ function ContentCalendar() {
     {
       id: "plan-march",
       title: "Evergreen Refresh",
-      status: "Archived",
+      status: "Cancelled",
       updated: "Apr 02",
       owner: "Brand Team",
       schedule: "Mar 01 – Mar 31",
+      platforms: ["youtube", "linkedin"] as const,
       items: [
         {
           id: "pi-6",
           title: "Weekly shorts recap",
+          platform: "youtube" as const,
           type: "Video",
           state: "Approved",
-          postState: "Posted",
-          time: "Mar 28, 11:00",
+          postState: "Cancelled",
+          time: "Cancelled before posting",
         },
       ],
     },
-  ];
+  ]);
 
-  const [selectedPlanId, setSelectedPlanId] = useState(plans[0].id);
+  const [selectedPlanId, setSelectedPlanId] = useState("plan-current");
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
+
+  const previewAsset = approvalQueue.find((item) => item.id === previewAssetId) ?? null;
 
   const workflowSteps = [
     { id: 1, label: "Define goal" },
@@ -1535,6 +1563,28 @@ function ContentCalendar() {
     });
   };
 
+  const cancelPlan = (id: string) => {
+    setPlans((prev) =>
+      prev.map((plan) =>
+        plan.id === id
+          ? {
+              ...plan,
+              status: "Cancelled",
+              items: plan.items.map((item) => ({
+                ...item,
+                postState:
+                  item.postState === "Completed" ? "Completed" : "Cancelled",
+                time:
+                  item.postState === "Completed"
+                    ? item.time
+                    : "Cancelled before posting",
+              })),
+            }
+          : plan
+      )
+    );
+  };
+
   return (
     <div className="space-y-6">
       <Card className="rounded-3xl border bg-background shadow-[0_0_35px_rgba(163,230,53,0.18)]">
@@ -1543,7 +1593,7 @@ function ContentCalendar() {
             <div>
               <CardTitle className="text-xl">Content Calendar</CardTitle>
               <CardDescription>
-                Create a new content plan with clear workflow controls and approval options.
+                Build a new plan first. Scheduling is optional but recommended.
               </CardDescription>
             </div>
             <Button className="rounded-2xl">
@@ -1584,57 +1634,92 @@ function ContentCalendar() {
               <CardHeader>
                 <CardTitle className="text-base">Plan setup</CardTitle>
                 <CardDescription>
-                  Set your objective, channels, and how approvals should run.
+                  Pick a goal (optional), add a prompt (optional), and start instantly.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="text-xs font-medium text-muted-foreground">Goal</div>
+                  <div className="flex flex-wrap gap-2">
+                    {goalOptions.map((goal) => (
+                      <button
+                        key={goal}
+                        type="button"
+                        onClick={() => setSelectedGoal((cur) => (cur === goal ? "" : goal))}
+                        className={[
+                          "rounded-full border px-4 py-1.5 text-sm transition-all",
+                          selectedGoal === goal
+                            ? "border-primary/60 bg-primary/15 text-foreground"
+                            : "bg-background text-muted-foreground",
+                        ].join(" ")}
+                      >
+                        {goal}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-muted-foreground">
+                    Prompt (optional)
+                  </div>
                   <Textarea
-                    value={purpose}
-                    onChange={(e) => setPurpose(e.target.value)}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
                     className="min-h-[90px] rounded-2xl"
+                    placeholder="Optional context, campaign direction, tone, or constraints..."
                   />
                 </div>
+
                 <div className="flex flex-wrap gap-2">
-                  {[
-                    { key: "instagram", label: "Instagram" },
-                    { key: "tiktok", label: "TikTok" },
-                    { key: "youtube", label: "YouTube" },
-                    { key: "linkedin", label: "LinkedIn" },
-                  ].map((item) => {
-                    const isOn = platforms[item.key as keyof typeof platforms];
+                  {(Object.keys(platforms) as Array<keyof typeof platforms>).map((key) => {
+                    const isOn = platforms[key];
                     return (
                       <button
-                        key={item.key}
+                        key={key}
                         type="button"
                         onClick={() =>
                           setPlatforms((prev) => ({
                             ...prev,
-                            [item.key]: !prev[item.key as keyof typeof platforms],
+                            [key]: !prev[key],
                           }))
                         }
                         className={[
-                          "rounded-full border px-4 py-1.5 text-sm transition-all",
+                          "inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm transition-all",
                           isOn
                             ? "border-primary/60 bg-primary/15 text-foreground"
                             : "bg-background text-muted-foreground",
                         ].join(" ")}
                       >
-                        {item.label}
+                        {platformMeta[key].icon}
+                        {platformMeta[key].label}
                       </button>
                     );
                   })}
                 </div>
-                <div className="flex items-center justify-between rounded-2xl border bg-muted/10 px-3 py-2">
-                  <div>
-                    <div className="text-sm font-medium">Auto approval</div>
-                    <div className="text-xs text-muted-foreground">
-                      Approve generated pieces automatically after generation.
+
+                <div className="space-y-2 rounded-2xl border bg-muted/10 p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-medium">Auto approval</div>
+                      <div className="text-xs text-muted-foreground">
+                        Approve generated pieces automatically.
+                      </div>
                     </div>
+                    <Switch checked={autoApproval} onCheckedChange={setAutoApproval} />
                   </div>
-                  <Switch checked={autoApproval} onCheckedChange={setAutoApproval} />
+
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-medium">Use scheduler</div>
+                      <div className="text-xs text-muted-foreground">
+                        Optional, but recommended for reliable posting.
+                      </div>
+                    </div>
+                    <Switch checked={useScheduler} onCheckedChange={setUseScheduler} />
+                  </div>
                 </div>
+
                 <Button className="rounded-2xl">Initiate Plan</Button>
               </CardContent>
             </Card>
@@ -1643,22 +1728,20 @@ function ContentCalendar() {
               <CardHeader>
                 <CardTitle className="text-base">Approvals</CardTitle>
                 <CardDescription>
-                  Review each piece individually and preview before approval.
+                  Preview each piece in detail, approve it, or download it.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {approvalQueue.map((item) => {
                   const approved = autoApproval || approvedAssetIds.has(item.id);
                   return (
-                    <div
-                      key={item.id}
-                      className="rounded-2xl border bg-muted/10 p-3"
-                    >
+                    <div key={item.id} className="rounded-2xl border bg-muted/10 p-3">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <div className="text-sm font-semibold">{item.title}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {item.platform} • {item.type} • {approved ? "Approved" : item.status}
+                          <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                            {platformMeta[item.platform].icon}
+                            {platformMeta[item.platform].label} • {item.type} • {approved ? "Approved" : item.status}
                           </div>
                           <div className="mt-1 text-xs text-muted-foreground">{item.summary}</div>
                         </div>
@@ -1673,6 +1756,12 @@ function ContentCalendar() {
                           onClick={() => setPreviewAssetId(item.id)}
                         >
                           Preview
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="rounded-2xl"
+                        >
+                          Download
                         </Button>
                         <Button
                           className="rounded-2xl"
@@ -1693,9 +1782,9 @@ function ContentCalendar() {
 
       <Card className="rounded-3xl border bg-background">
         <CardHeader>
-          <CardTitle className="text-xl">Your content plans</CardTitle>
+          <CardTitle className="text-xl">Active & archived plans</CardTitle>
           <CardDescription>
-            View current and historical plans, status by piece, and posting timeline.
+            See statuses, platforms used, content status, and posting schedule.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
@@ -1721,6 +1810,17 @@ function ContentCalendar() {
                     </Badge>
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">{plan.schedule}</div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {plan.platforms.map((platformKey) => (
+                      <span
+                        key={`${plan.id}-${platformKey}`}
+                        className="inline-flex items-center gap-1 rounded-full border bg-background/80 px-2 py-0.5 text-[11px]"
+                      >
+                        {platformMeta[platformKey].icon}
+                        {platformMeta[platformKey].label}
+                      </span>
+                    ))}
+                  </div>
                   <div className="mt-1 text-xs text-muted-foreground">
                     Updated {plan.updated} • {plan.owner}
                   </div>
@@ -1735,25 +1835,45 @@ function ContentCalendar() {
                 <div className="text-sm font-semibold">{selectedPlan.title}</div>
                 <div className="text-xs text-muted-foreground">{selectedPlan.schedule}</div>
               </div>
-              <Badge variant="secondary" className="rounded-full">
-                {selectedPlan.status}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="rounded-full">
+                  {selectedPlan.status}
+                </Badge>
+                {selectedPlan.status !== "Cancelled" ? (
+                  <Button
+                    variant="outline"
+                    className="h-8 rounded-xl px-2 text-xs"
+                    onClick={() => cancelPlan(selectedPlan.id)}
+                  >
+                    Cancel plan
+                  </Button>
+                ) : null}
+              </div>
             </div>
 
             <div className="mt-3 space-y-2">
               {selectedPlan.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="rounded-xl border bg-background/80 px-3 py-2"
-                >
+                <div key={item.id} className="rounded-xl border bg-background/80 px-3 py-2">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="text-sm font-medium">{item.title}</div>
-                    <Button variant="ghost" className="h-8 rounded-xl px-2 text-xs">
-                      Preview
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        className="h-8 rounded-xl px-2 text-xs"
+                      >
+                        Preview
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="h-8 rounded-xl px-2 text-xs"
+                      >
+                        Download
+                      </Button>
+                    </div>
                   </div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {item.type} • Content status: {item.state}
+                  <div className="mt-1 inline-flex items-center gap-2 text-xs text-muted-foreground">
+                    {platformMeta[item.platform].icon}
+                    {platformMeta[item.platform].label} • {item.type} • Content status: {item.state}
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">
                     Publishing: {item.postState} • {item.time}
@@ -1770,26 +1890,40 @@ function ContentCalendar() {
           <DialogHeader>
             <DialogTitle>{previewAsset?.title ?? "Preview"}</DialogTitle>
             <DialogDescription>
-              {previewAsset?.platform} • {previewAsset?.type}
+              {previewAsset ? platformMeta[previewAsset.platform].label : ""} • {previewAsset?.type}
             </DialogDescription>
           </DialogHeader>
           {previewAsset?.type === "Video" ? (
             <div className="rounded-2xl border bg-muted/20 p-4">
               <div className="aspect-video rounded-xl border bg-background/80 p-4">
-                <div className="text-sm font-medium">Video preview</div>
+                <div className="text-sm font-medium">Video preview mock-up</div>
                 <div className="mt-2 text-xs text-muted-foreground">
-                  Mock player: this is where rendered video playback appears.
+                  ▶ 00:00 / 00:20 • Captions • Brand watermark • CTA overlay.
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="rounded-2xl border bg-muted/20 p-4 text-sm text-muted-foreground">
-              {previewAsset?.preview}
+          ) : null}
+          {previewAsset?.type === "Image" ? (
+            <div className="rounded-2xl border bg-muted/20 p-4">
+              <div className="aspect-square rounded-xl border bg-gradient-to-br from-lime-500/20 via-emerald-500/15 to-cyan-500/20 p-4">
+                <div className="text-sm font-medium">Image preview mock-up</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Hero title, subtitle, and CTA badge placement preview.
+                </div>
+              </div>
             </div>
-          )}
+          ) : null}
+          {previewAsset?.type === "Text" ? (
+            <div className="rounded-2xl border bg-muted/20 p-4 text-sm text-muted-foreground">
+              {previewAsset.preview}
+            </div>
+          ) : null}
           <DialogFooter>
             <Button variant="ghost" className="rounded-2xl" onClick={() => setPreviewAssetId(null)}>
               Close
+            </Button>
+            <Button variant="outline" className="rounded-2xl">
+              Download
             </Button>
             <Button
               className="rounded-2xl"
