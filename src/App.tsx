@@ -89,7 +89,13 @@ const FADE = {
   transition: { type: "spring", stiffness: 220, damping: 22 },
 } as const;
 
-type TabKey = "chat" | "generate" | "calendar" | "brain" | "analytics";
+type TabKey =
+  | "chat"
+  | "generate"
+  | "calendar"
+  | "brain"
+  | "analytics"
+  | "launch";
 
 type TabMeta = { key: TabKey; label: string; icon: React.ReactNode };
 
@@ -121,8 +127,9 @@ const TAB_META: TabMeta[] = [
   { key: "chat", label: "Campaign Hub", icon: <Sparkles className="h-4 w-4" /> },
   { key: "generate", label: "Create Content", icon: <FileText className="h-4 w-4" /> },
   { key: "calendar", label: "Content Calendar", icon: <Calendar className="h-4 w-4" /> },
-  { key: "brain", label: "BAT Studio", icon: <Brain className="h-4 w-4" /> },
+  { key: "brain", label: "BAT Brain", icon: <Brain className="h-4 w-4" /> },
   { key: "analytics", label: "Performance", icon: <BarChart3 className="h-4 w-4" /> },
+  { key: "launch", label: "Launch Ops", icon: <Globe className="h-4 w-4" /> },
 ];
 
 const TAB_STYLE: Record<TabKey, { glow: string; ring: string; icon: string }> = {
@@ -151,32 +158,37 @@ const TAB_STYLE: Record<TabKey, { glow: string; ring: string; icon: string }> = 
     ring: "ring-cyan-500/20",
     icon: "text-cyan-200/80",
   },
+  launch: {
+    glow: "from-violet-500/20 via-fuchsia-500/15 to-pink-500/20",
+    ring: "ring-violet-500/20",
+    icon: "text-violet-200/80",
+  },
 };
 
 const appsCatalog = [
   {
-    key: "instagram" as const,
+    key: "instagram",
     name: "Instagram",
     desc: "Reels, carousels, and creator collaborations.",
     badge: "Reels",
     icon: <Sparkles className="h-4 w-4" />,
   },
   {
-    key: "tiktok" as const,
+    key: "tiktok",
     name: "TikTok",
     desc: "Short-form trends, hooks, and fast edits.",
     badge: "Shorts",
     icon: <Workflow className="h-4 w-4" />,
   },
   {
-    key: "youtube" as const,
+    key: "youtube",
     name: "YouTube",
     desc: "Long-form strategy, thumbnails, and series.",
     badge: "Video",
     icon: <Upload className="h-4 w-4" />,
   },
   {
-    key: "linkedin" as const,
+    key: "linkedin",
     name: "LinkedIn",
     desc: "Founder POV, company news, and lead gen.",
     badge: "B2B",
@@ -190,7 +202,7 @@ const appsCatalog = [
     icon: <RefreshCw className="h-4 w-4" />,
   },
   {
-    key: "meta" as const,
+    key: "meta",
     name: "Meta Ads",
     desc: "Paid social creative + audience testing.",
     badge: "Paid",
@@ -491,7 +503,7 @@ function TopBar({
 function TabNav({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
   return (
     <div className="rounded-2xl border bg-muted/20 p-1.5 sm:p-2 shadow-sm">
-      <div className="grid grid-cols-2 gap-1.5 md:grid-cols-5 md:gap-2">
+      <div className="grid grid-cols-2 gap-1.5 md:grid-cols-6 md:gap-2">
         {TAB_META.map((t) => {
           const styles = TAB_STYLE[t.key];
           const active = tab === t.key;
@@ -1024,7 +1036,7 @@ function GenerateStudio({
         <CardHeader className="gap-2">
           <CardTitle className="text-xl">Generate anything</CardTitle>
           <CardDescription>
-            BAT Studio turns your data and memory into media, policies, diagrams, and
+            BAT Brain turns your marketing memory into media, campaign plans, and
             execution-ready artifacts.
           </CardDescription>
         </CardHeader>
@@ -1389,7 +1401,9 @@ const channelMix = [
 ];
 
 function ContentCalendar() {
-  const [purpose, setPurpose] = useState("Audience growth + product launch");
+  const [planTitle, setPlanTitle] = useState("Untitled content plan");
+  const [selectedGoal, setSelectedGoal] = useState("");
+  const [prompt, setPrompt] = useState("");
   const [platforms, setPlatforms] = useState({
     instagram: true,
     tiktok: true,
@@ -1397,392 +1411,955 @@ function ContentCalendar() {
     linkedin: false,
   });
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [autoApproval, setAutoApproval] = useState(false);
+  const [useScheduler, setUseScheduler] = useState(true);
 
-  const recommendations = [
-    {
-      channel: "Instagram",
-      count: 8,
-      mix: "4 Reels • 3 Carousels • 1 Story pack",
-    },
-    {
-      channel: "YouTube",
-      count: 4,
-      mix: "2 Long-form • 2 Shorts",
-    },
-    {
-      channel: "TikTok",
-      count: 6,
-      mix: "3 Trends • 2 UGC • 1 Stitch",
-    },
+  const goalOptions = [
+    "Awareness",
+    "Engagement",
+    "Lead generation",
+    "Product launch",
+    "Retention",
   ];
+
+  const platformMeta = {
+    instagram: { label: "Instagram", icon: <Sparkles className="h-4 w-4" /> },
+    tiktok: { label: "TikTok", icon: <Workflow className="h-4 w-4" /> },
+    youtube: { label: "YouTube", icon: <Upload className="h-4 w-4" /> },
+    linkedin: { label: "LinkedIn", icon: <MessagesSquare className="h-4 w-4" /> },
+    x: { label: "X / Twitter", icon: <RefreshCw className="h-4 w-4" /> },
+    meta: { label: "Meta Ads", icon: <Search className="h-4 w-4" /> },
+  } as const;
+
+  type PlatformKey = keyof typeof platformMeta;
+  type PlanStatus = "In-progress" | "Completed" | "Cancelled" | "Draft";
+  type PlanItem = {
+    id: string;
+    title: string;
+    platform: PlatformKey;
+    type: "Video" | "Image" | "Text";
+    state: string;
+    postState: string;
+    time: string;
+  };
+  type ContentPlan = {
+    id: string;
+    title: string;
+    status: PlanStatus;
+    updated: string;
+    owner: string;
+    schedule: string;
+    platforms: PlatformKey[];
+    items: PlanItem[];
+  };
 
   const approvalQueue = [
     {
+      id: "asset-001",
       title: "Hook pack A",
-      platform: "Instagram",
-      status: "Ready for approval",
+      platform: "instagram",
+      type: "Text",
+      status: "Pending approval",
+      summary: "5 short hooks focused on retention and watch-time.",
+      preview:
+        "1) Stop scrolling if your reels are stuck under 2k views. 2) Your content is fine, your first 2 seconds are killing it...",
     },
     {
-      title: "Episode 4 script",
-      platform: "YouTube",
-      status: "Draft ready",
+      id: "asset-002",
+      title: "Episode 4 teaser",
+      platform: "youtube",
+      type: "Video",
+      status: "Pending approval",
+      summary: "20-second teaser generated from the long-form script.",
+      preview: "video",
     },
     {
-      title: "Trend remix",
-      platform: "TikTok",
-      status: "Needs review",
+      id: "asset-003",
+      title: "Launch teaser still",
+      platform: "instagram",
+      type: "Image",
+      status: "Needs updates",
+      summary: "Static image creative for launch-day countdown post.",
+      preview: "image",
     },
   ];
 
-  const scheduledItems = [
-    { date: "May 02", channel: "Instagram", slot: "Reel", time: "09:30" },
-    { date: "May 03", channel: "TikTok", slot: "Trend clip", time: "17:00" },
-    { date: "May 04", channel: "YouTube", slot: "Long-form", time: "12:00" },
-    { date: "May 05", channel: "Instagram", slot: "Carousel", time: "08:15" },
-  ];
+  const [approvedAssetIds, setApprovedAssetIds] = useState<Set<string>>(() => new Set());
+  const [previewAssetId, setPreviewAssetId] = useState<string | null>(null);
 
-  const previousPlans = [
+  const [plans, setPlans] = useState<ContentPlan[]>([
     {
-      id: "plan-042",
+      id: "plan-current",
+      title: "May Product Push",
+      status: "In-progress",
+      updated: "Today",
+      owner: "Marketing Ops",
+      schedule: "May 01 – May 31",
+      platforms: ["instagram", "youtube", "linkedin"],
+      items: [
+        {
+          id: "pi-1",
+          title: "Instagram reel: 3 launch mistakes",
+          platform: "instagram",
+          type: "Video",
+          state: "Approved",
+          postState: "Scheduled",
+          time: "May 08, 09:30",
+        },
+        {
+          id: "pi-2",
+          title: "LinkedIn launch breakdown",
+          platform: "linkedin",
+          type: "Text",
+          state: "Pending",
+          postState: "Draft",
+          time: "Not scheduled",
+        },
+        {
+          id: "pi-3",
+          title: "YouTube teaser",
+          platform: "youtube",
+          type: "Video",
+          state: "Approved",
+          postState: "Completed",
+          time: "May 03, 12:00",
+        },
+      ],
+    },
+    {
+      id: "plan-april",
       title: "April Launch Sprint",
-      timeframe: "Apr 01 – Apr 30",
-      status: "Published",
+      status: "Completed",
       updated: "May 01",
-      changes: 12,
-      summary: "Launch-focused cadence with creator collabs and paid retargeting.",
-      highlights: [
-        "Added 3 creator Reels after spike in saves.",
-        "Swapped 2 Meta ad concepts for higher CTR.",
-        "Paused LinkedIn carousel during webinar week.",
+      owner: "Demand Gen",
+      schedule: "Apr 01 – Apr 30",
+      platforms: ["instagram", "tiktok", "meta"],
+      items: [
+        {
+          id: "pi-4",
+          title: "Creator collaboration reel",
+          platform: "instagram",
+          type: "Video",
+          state: "Approved",
+          postState: "Completed",
+          time: "Apr 27, 15:00",
+        },
+        {
+          id: "pi-5",
+          title: "Carousel: pricing FAQs",
+          platform: "instagram",
+          type: "Image",
+          state: "Approved",
+          postState: "Completed",
+          time: "Apr 24, 10:00",
+        },
       ],
     },
     {
-      id: "plan-041",
-      title: "Q1 Evergreen Refresh",
-      timeframe: "Mar 01 – Mar 31",
-      status: "Archived",
+      id: "plan-march",
+      title: "Evergreen Refresh",
+      status: "Cancelled",
       updated: "Apr 02",
-      changes: 7,
-      summary: "Evergreen content rotation to stabilize engagement.",
-      highlights: [
-        "Introduced weekly Shorts recap for YouTube.",
-        "Consolidated TikTok trends into 2 weekly batches.",
-        "Shifted posting times to 09:00-11:00 window.",
+      owner: "Brand Team",
+      schedule: "Mar 01 – Mar 31",
+      platforms: ["youtube", "linkedin"],
+      items: [
+        {
+          id: "pi-6",
+          title: "Weekly shorts recap",
+          platform: "youtube",
+          type: "Video",
+          state: "Approved",
+          postState: "Cancelled",
+          time: "Cancelled before posting",
+        },
       ],
     },
-    {
-      id: "plan-040",
-      title: "Founder Story Arc",
-      timeframe: "Feb 01 – Feb 28",
-      status: "Archived",
-      updated: "Mar 03",
-      changes: 9,
-      summary: "Narrative series centered on founder POV and product journey.",
-      highlights: [
-        "Added 4 behind-the-scenes Instagram Stories.",
-        "Replaced 1 long-form script with AMA cut.",
-        "Moved launch teaser to mid-month.",
-      ],
-    },
-  ];
+  ]);
 
-  const [selectedPlanId, setSelectedPlanId] = useState(previousPlans[0]?.id ?? "");
-  const selectedPlan =
-    previousPlans.find((plan) => plan.id === selectedPlanId) ?? previousPlans[0];
+  const [selectedPlanId, setSelectedPlanId] = useState("plan-current");
+  const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
+
+  const previewAsset = approvalQueue.find((item) => item.id === previewAssetId) ?? null;
+
+  const workflowSteps = [
+    { id: 1, label: "Define goal" },
+    { id: 2, label: "Generate plan" },
+    { id: 3, label: "Preview + approve" },
+    { id: 4, label: "Publish + monitor" },
+  ] as const;
+
+  const toggleAssetApproval = (id: string) => {
+    setApprovedAssetIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const cancelPlan = (id: string) => {
+    setPlans((prev) =>
+      prev.map((plan) =>
+        plan.id === id
+          ? {
+              ...plan,
+              status: "Cancelled",
+              items: plan.items.map((item) => ({
+                ...item,
+                postState:
+                  item.postState === "Completed" ? "Completed" : "Cancelled",
+                time:
+                  item.postState === "Completed"
+                    ? item.time
+                    : "Cancelled before posting",
+              })),
+            }
+          : plan
+      )
+    );
+  };
+
+
+  const createPlan = (asDraft: boolean) => {
+    const id = `plan-${Date.now()}`;
+    const enabledPlatforms = (Object.keys(platforms) as Array<keyof typeof platforms>)
+      .filter((key) => platforms[key]) as PlatformKey[];
+
+    const newPlan: ContentPlan = {
+      id,
+      title: planTitle.trim() || "Untitled content plan",
+      status: asDraft ? "Draft" : "In-progress",
+      updated: "Just now",
+      owner: "You",
+      schedule: asDraft ? "Draft • schedule not set" : "Upcoming 30 days",
+      platforms: enabledPlatforms.length ? enabledPlatforms : ["instagram"],
+      items: [
+        {
+          id: `${id}-item-1`,
+          title: asDraft ? "Draft content item" : "Generated kickoff asset",
+          platform: enabledPlatforms[0] ?? "instagram",
+          type: "Text",
+          state: asDraft ? "Draft" : "Pending",
+          postState: asDraft ? "Draft" : useScheduler ? "Scheduled" : "Manual posting",
+          time: asDraft ? "Not scheduled" : useScheduler ? "TBD by scheduler" : "Post manually",
+        },
+      ],
+    };
+
+    setPlans((prev) => [newPlan, ...prev]);
+    setSelectedPlanId(id);
+  };
 
   return (
     <div className="space-y-6">
-      <Card className="relative overflow-hidden rounded-3xl border bg-background shadow-[0_0_35px_rgba(163,230,53,0.18)]">
-        <motion.div
-          className="absolute inset-0 -z-10 bg-gradient-to-br from-lime-500/15 via-green-500/10 to-emerald-500/20"
-          animate={{ opacity: [0.45, 0.8, 0.45] }}
-          transition={{ duration: 6, repeat: Infinity }}
-        />
+      <Card className="rounded-3xl border bg-background shadow-[0_0_35px_rgba(163,230,53,0.18)]">
         <CardHeader className="gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <CardTitle className="text-xl">Content Calendar</CardTitle>
               <CardDescription>
-                Build your schedule, approve assets, and publish with confidence.
+                Build a new plan first. Scheduling is optional but recommended.
               </CardDescription>
             </div>
             <Button className="rounded-2xl">
-              <Calendar className="mr-2 h-4 w-4" /> New Schedule
+              <Calendar className="mr-2 h-4 w-4" /> New Content Plan
             </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { id: 1, label: "Goal & Channels" },
-              { id: 2, label: "Recommended Mix" },
-              { id: 3, label: "Approvals" },
-              { id: 4, label: "Scheduled Content" },
-            ].map((item) => {
-              const active = step === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setStep(item.id as 1 | 2 | 3 | 4)}
-                  className={[
-                    "flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all",
-                    active
-                      ? "border-primary/50 bg-primary/15 shadow-[0_0_18px_rgba(163,230,53,0.25)]"
-                      : "bg-background/60 hover:border-primary/30",
-                  ].join(" ")}
-                >
-                  <span
+          <div className="rounded-2xl border bg-muted/10 p-4">
+            <div className="text-sm font-semibold">New content plan workflow</div>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {workflowSteps.map((item) => {
+                const active = step === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setStep(item.id)}
                     className={[
-                      "inline-flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold",
-                      active ? "border-primary/50 bg-primary text-primary-foreground" : "",
+                      "flex items-center gap-3 rounded-2xl border px-3 py-2 text-left transition-all",
+                      active
+                        ? "border-primary/50 bg-primary/15"
+                        : "bg-background/70 hover:border-primary/30",
                     ].join(" ")}
                   >
-                    {item.id}
-                  </span>
-                  <span className="text-sm font-semibold">{item.label}</span>
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold">
+                      {item.id}
+                    </span>
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card className="rounded-2xl border bg-background/80">
+              <CardHeader>
+                <CardTitle className="text-base">Plan setup</CardTitle>
+                <CardDescription>
+                  Pick a goal (optional), add a prompt (optional), and start instantly.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-muted-foreground">Plan title</div>
+                  <Input
+                    value={planTitle}
+                    onChange={(e) => setPlanTitle(e.target.value)}
+                    className="rounded-2xl"
+                    placeholder="Name this content plan"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-muted-foreground">Goal</div>
+                  <div className="flex flex-wrap gap-2">
+                    {goalOptions.map((goal) => (
+                      <button
+                        key={goal}
+                        type="button"
+                        onClick={() => setSelectedGoal((cur) => (cur === goal ? "" : goal))}
+                        className={[
+                          "rounded-full border px-4 py-1.5 text-sm transition-all",
+                          selectedGoal === goal
+                            ? "border-primary/60 bg-primary/15 text-foreground"
+                            : "bg-background text-muted-foreground",
+                        ].join(" ")}
+                      >
+                        {goal}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-muted-foreground">
+                    Prompt (optional)
+                  </div>
+                  <Textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="min-h-[90px] rounded-2xl"
+                    placeholder="Optional context, campaign direction, tone, or constraints..."
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {(Object.keys(platforms) as Array<keyof typeof platforms>).map((key) => {
+                    const isOn = platforms[key];
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() =>
+                          setPlatforms((prev) => ({
+                            ...prev,
+                            [key]: !prev[key],
+                          }))
+                        }
+                        className={[
+                          "inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm transition-all",
+                          isOn
+                            ? "border-primary/60 bg-primary/15 text-foreground"
+                            : "bg-background text-muted-foreground",
+                        ].join(" ")}
+                      >
+                        {platformMeta[key].icon}
+                        {platformMeta[key].label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="space-y-2 rounded-2xl border bg-muted/10 p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-medium">Auto approval</div>
+                      <div className="text-xs text-muted-foreground">
+                        Approve generated pieces automatically.
+                      </div>
+                    </div>
+                    <Switch checked={autoApproval} onCheckedChange={setAutoApproval} />
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-medium">Use scheduler</div>
+                      <div className="text-xs text-muted-foreground">
+                        Optional, but recommended for reliable posting.
+                      </div>
+                    </div>
+                    <Switch checked={useScheduler} onCheckedChange={setUseScheduler} />
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button className="rounded-2xl" onClick={() => createPlan(false)}>
+                    Launch Content Calendar
+                  </Button>
+                  <Button variant="outline" className="rounded-2xl" onClick={() => createPlan(true)}>
+                    Save as Draft
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl border bg-background/80">
+              <CardHeader>
+                <CardTitle className="text-base">Approvals</CardTitle>
+                <CardDescription>
+                  Preview each piece in detail, approve it, or download it.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {approvalQueue.map((item) => {
+                  const approved = autoApproval || approvedAssetIds.has(item.id);
+                  return (
+                    <div key={item.id} className="rounded-2xl border bg-muted/10 p-3">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <div className="text-sm font-semibold">{item.title}</div>
+                          <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                            {platformMeta[item.platform].icon}
+                            {platformMeta[item.platform].label} • {item.type} • {approved ? "Approved" : item.status}
+                          </div>
+                          <div className="mt-1 text-xs text-muted-foreground">{item.summary}</div>
+                        </div>
+                        <Badge variant="secondary" className="rounded-full">
+                          {approved ? "Approved" : "Action needed"}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Button
+                          variant="outline"
+                          className="rounded-2xl"
+                          onClick={() => setPreviewAssetId(item.id)}
+                        >
+                          Preview
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="rounded-2xl"
+                        >
+                          Download
+                        </Button>
+                        <Button
+                          className="rounded-2xl"
+                          onClick={() => toggleAssetApproval(item.id)}
+                          disabled={autoApproval}
+                        >
+                          {approved ? "Unapprove" : "Approve"}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-3xl border bg-background">
+        <CardHeader>
+          <CardTitle className="text-xl">Active & archived plans</CardTitle>
+          <CardDescription>
+            See statuses, platforms used, content status, and posting schedule.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="space-y-2">
+            {plans.map((plan) => {
+              const active = selectedPlan.id === plan.id;
+              return (
+                <button
+                  key={plan.id}
+                  type="button"
+                  onClick={() => setSelectedPlanId(plan.id)}
+                  className={[
+                    "w-full rounded-2xl border px-4 py-3 text-left transition-all",
+                    active
+                      ? "border-primary/50 bg-primary/15"
+                      : "bg-background/70 hover:border-primary/30",
+                  ].join(" ")}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-sm font-semibold">{plan.title}</div>
+                    <Badge variant="secondary" className="rounded-full">
+                      {plan.status}
+                    </Badge>
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">{plan.schedule}</div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {plan.platforms.map((platformKey) => (
+                      <span
+                        key={`${plan.id}-${platformKey}`}
+                        className="inline-flex items-center gap-1 rounded-full border bg-background/80 px-2 py-0.5 text-[11px]"
+                      >
+                        {platformMeta[platformKey].icon}
+                        {platformMeta[platformKey].label}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    Updated {plan.updated} • {plan.owner}
+                  </div>
                 </button>
               );
             })}
           </div>
 
-          <Card className="rounded-2xl border bg-background/70">
-            <CardHeader>
-              <CardTitle className="text-base">Previous plans</CardTitle>
-              <CardDescription>
-                Review past calendars, statuses, and key changes.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-              <div className="space-y-2">
-                {previousPlans.map((plan) => {
-                  const isActive = plan.id === selectedPlan?.id;
-                  return (
-                    <button
-                      key={plan.id}
-                      type="button"
-                      onClick={() => setSelectedPlanId(plan.id)}
-                      className={[
-                        "w-full rounded-2xl border px-4 py-3 text-left transition-all",
-                        isActive
-                          ? "border-primary/50 bg-primary/15 shadow-[0_0_18px_rgba(163,230,53,0.25)]"
-                          : "bg-background/60 hover:border-primary/30",
-                      ].join(" ")}
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                          <div className="text-sm font-semibold">{plan.title}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {plan.timeframe}
-                          </div>
-                        </div>
-                        <Badge variant="secondary" className="rounded-full">
-                          {plan.status}
-                        </Badge>
-                      </div>
-                      <div className="mt-2 text-xs text-muted-foreground">
-                        {plan.changes} changes • Updated {plan.updated}
-                      </div>
-                    </button>
-                  );
-                })}
+          <div className="rounded-2xl border bg-muted/10 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div className="text-sm font-semibold">{selectedPlan.title}</div>
+                <div className="text-xs text-muted-foreground">{selectedPlan.schedule}</div>
               </div>
-              {selectedPlan ? (
-                <div className="rounded-2xl border bg-muted/10 p-4">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="rounded-full">
+                  {selectedPlan.status}
+                </Badge>
+                {selectedPlan.status !== "Cancelled" ? (
+                  <Button
+                    variant="outline"
+                    className="h-8 rounded-xl px-2 text-xs"
+                    onClick={() => cancelPlan(selectedPlan.id)}
+                  >
+                    Cancel plan
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="mt-3 space-y-2">
+              {selectedPlan.items.map((item) => (
+                <div key={item.id} className="rounded-xl border bg-background/80 px-3 py-2">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="text-sm font-semibold">{selectedPlan.title}</div>
-                    <Badge variant="secondary" className="rounded-full">
-                      {selectedPlan.status}
-                    </Badge>
-                  </div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {selectedPlan.timeframe} • {selectedPlan.changes} changes
-                  </div>
-                  <div className="mt-3 text-xs text-muted-foreground">
-                    {selectedPlan.summary}
-                  </div>
-                  <div className="mt-3 space-y-2">
-                    {selectedPlan.highlights.map((note) => (
-                      <div
-                        key={note}
-                        className="rounded-xl border bg-background/70 px-3 py-2 text-xs text-muted-foreground"
+                    <div className="text-sm font-medium">{item.title}</div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        className="h-8 rounded-xl px-2 text-xs"
                       >
-                        {note}
-                      </div>
-                    ))}
-                  </div>
-                  <Button variant="outline" className="mt-4 rounded-2xl">
-                    View plan
-                  </Button>
-                </div>
-              ) : null}
-            </CardContent>
-          </Card>
-
-          <div className="space-y-4">
-            {step === 1 ? (
-              <Card className="rounded-2xl border bg-background/70">
-                <CardHeader>
-                  <CardTitle className="text-base">Goal & channels</CardTitle>
-                  <CardDescription>
-                    Describe Goal and desired platforms.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="text-xs font-medium text-muted-foreground">
-                      Purpose
-                    </div>
-                    <Textarea
-                      value={purpose}
-                      onChange={(e) => setPurpose(e.target.value)}
-                      className="min-h-[90px] rounded-2xl"
-                      placeholder="Audience growth, product launch, community engagement..."
-                    />
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      { key: "instagram", label: "Instagram" },
-                      { key: "tiktok", label: "TikTok" },
-                      { key: "youtube", label: "YouTube" },
-                      { key: "linkedin", label: "LinkedIn" },
-                    ].map((item) => {
-                      const isOn = platforms[item.key as keyof typeof platforms];
-                      return (
-                        <button
-                          key={item.key}
-                          type="button"
-                          onClick={() =>
-                            setPlatforms((prev) => ({
-                              ...prev,
-                              [item.key]: !prev[item.key as keyof typeof platforms],
-                            }))
-                          }
-                          className={[
-                            "rounded-full border px-4 py-1.5 text-sm transition-all",
-                            isOn
-                              ? "border-primary/60 bg-primary/15 text-foreground"
-                              : "bg-background text-muted-foreground",
-                          ].join(" ")}
-                        >
-                          {item.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <Button className="rounded-2xl" onClick={() => setStep(2)}>
-                    Next →
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : null}
-
-            {step === 2 ? (
-              <Card className="rounded-2xl border bg-background/70">
-                <CardHeader>
-                  <CardTitle className="text-base">Recommended mix</CardTitle>
-                  <CardDescription>
-                    BAT suggests an optimized cadence based on recent performance.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {recommendations.map((item) => (
-                    <div
-                      key={item.channel}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-muted/10 p-3"
-                    >
-                      <div>
-                        <div className="text-sm font-semibold">{item.channel}</div>
-                        <div className="text-xs text-muted-foreground">{item.mix}</div>
-                      </div>
-                      <Badge variant="secondary" className="rounded-full">
-                        {item.count} posts
-                      </Badge>
-                    </div>
-                  ))}
-                  <Button className="rounded-2xl" onClick={() => setStep(3)}>
-                    Next →
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : null}
-
-            {step === 3 ? (
-              <Card className="rounded-2xl border bg-background/70">
-                <CardHeader>
-                  <CardTitle className="text-base">Approvals</CardTitle>
-                  <CardDescription>
-                    Review drafts and approve before scheduling.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {approvalQueue.map((item) => (
-                    <div
-                      key={`${item.title}-${item.platform}`}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-muted/10 p-3"
-                    >
-                      <div>
-                        <div className="text-sm font-semibold">{item.title}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {item.platform} • {item.status}
-                        </div>
-                      </div>
-                      <Button variant="outline" className="rounded-2xl">
-                        Approve
+                        Preview
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="h-8 rounded-xl px-2 text-xs"
+                      >
+                        Download
                       </Button>
                     </div>
-                  ))}
-                  <Button className="rounded-2xl" onClick={() => setStep(4)}>
-                    Next →
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : null}
-
-            {step === 4 ? (
-              <Card className="rounded-2xl border bg-background/70">
-                <CardHeader>
-                  <CardTitle className="text-base">Scheduled content</CardTitle>
-                  <CardDescription>
-                    Approved content is automatically queued.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {scheduledItems.map((item) => (
-                    <div
-                      key={`${item.date}-${item.channel}`}
-                      className="flex items-center justify-between rounded-2xl border bg-muted/10 p-3"
-                    >
-                      <div>
-                        <div className="text-sm font-semibold">
-                          {item.date} • {item.channel}
-                        </div>
-                        <div className="text-xs text-muted-foreground">{item.slot}</div>
-                      </div>
-                      <Badge variant="secondary" className="rounded-full">
-                        {item.time}
-                      </Badge>
-                    </div>
-                  ))}
-                  <div className="mt-2">
-                    <Progress value={92} />
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      Calendar 92% scheduled • Auto-publishing enabled
-                    </div>
                   </div>
-                  <Button className="rounded-2xl">
-                    <Sparkles className="mr-2 h-4 w-4" /> Publish Schedule
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : null}
+                  <div className="mt-1 inline-flex items-center gap-2 text-xs text-muted-foreground">
+                    {platformMeta[item.platform].icon}
+                    {platformMeta[item.platform].label} • {item.type} • Content status: {item.state}
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    Publishing: {item.postState} • {item.time}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={Boolean(previewAsset)} onOpenChange={(open) => !open && setPreviewAssetId(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{previewAsset?.title ?? "Preview"}</DialogTitle>
+            <DialogDescription>
+              {previewAsset ? platformMeta[previewAsset.platform].label : ""} • {previewAsset?.type}
+            </DialogDescription>
+          </DialogHeader>
+          {previewAsset?.type === "Video" ? (
+            <div className="rounded-2xl border bg-muted/20 p-4">
+              <div className="aspect-video rounded-xl border bg-background/80 p-4">
+                <div className="text-sm font-medium">Video preview mock-up</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  ▶ 00:00 / 00:20 • Captions • Brand watermark • CTA overlay.
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {previewAsset?.type === "Image" ? (
+            <div className="rounded-2xl border bg-muted/20 p-4">
+              <div className="aspect-square rounded-xl border bg-gradient-to-br from-lime-500/20 via-emerald-500/15 to-cyan-500/20 p-4">
+                <div className="text-sm font-medium">Image preview mock-up</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Hero title, subtitle, and CTA badge placement preview.
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {previewAsset?.type === "Text" ? (
+            <div className="rounded-2xl border bg-muted/20 p-4 text-sm text-muted-foreground">
+              {previewAsset.preview}
+            </div>
+          ) : null}
+          <DialogFooter>
+            <Button variant="ghost" className="rounded-2xl" onClick={() => setPreviewAssetId(null)}>
+              Close
+            </Button>
+            <Button variant="outline" className="rounded-2xl">
+              Download
+            </Button>
+            <Button
+              className="rounded-2xl"
+              onClick={() => {
+                if (previewAsset) toggleAssetApproval(previewAsset.id);
+                setPreviewAssetId(null);
+              }}
+              disabled={autoApproval}
+            >
+              Approve asset
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
+
+function LaunchOps() {
+  const [activePage, setActivePage] = useState<
+    | "landing"
+    | "signin"
+    | "signup"
+    | "forgot"
+    | "workspaces"
+    | "billing"
+    | "usage"
+    | "onboarding"
+  >("landing");
+  const [selectedWorkspace, setSelectedWorkspace] = useState("Growth Team");
+
+  const pages = [
+    { key: "landing", label: "Landing page" },
+    { key: "signin", label: "Sign in" },
+    { key: "signup", label: "Sign up" },
+    { key: "forgot", label: "Forgot password" },
+    { key: "workspaces", label: "Workspaces" },
+    { key: "billing", label: "Billing" },
+    { key: "usage", label: "Usage + limits" },
+    { key: "onboarding", label: "Onboarding + launch" },
+  ] as const;
+
+  const workspaces = [
+    {
+      name: "Growth Team",
+      members: 8,
+      role: "Owner",
+      plan: "Scale",
+      usage: "72%",
+      billing: "$499/mo",
+    },
+    {
+      name: "Brand Studio",
+      members: 4,
+      role: "Admin",
+      plan: "Pro",
+      usage: "41%",
+      billing: "$199/mo",
+    },
+    {
+      name: "Agency Clients",
+      members: 12,
+      role: "Editor",
+      plan: "Enterprise",
+      usage: "64%",
+      billing: "$1,200/mo",
+    },
+  ];
+
+  const selectedWs = workspaces.find((w) => w.name === selectedWorkspace) ?? workspaces[0];
+
+  const renderPage = () => {
+    if (activePage === "landing") {
+      return (
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Landing page workflow</CardTitle>
+            <CardDescription>
+              Build a conversion-ready homepage for BAT Social with all launch sections.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              "Hero: value prop + CTA to start trial",
+              "Problem/Solution: why BAT Brain + workflows matter",
+              "Feature blocks: Campaign Hub, Create Content, Content Calendar, BAT Brain",
+              "Trust: case studies, metrics, testimonials",
+              "Pricing teaser + plan comparison",
+              "Footer: docs, support, legal, status",
+            ].map((item) => (
+              <div key={item} className="rounded-2xl border bg-muted/10 p-3 text-sm">
+                {item}
+              </div>
+            ))}
+            <div className="rounded-2xl border bg-muted/10 p-3">
+              <div className="text-sm font-semibold">Instrumentation</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                Track CTA clicks, demo requests, pricing views, sign-up conversion, and bounce by section.
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activePage === "signin") {
+      return (
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Sign in page</CardTitle>
+            <CardDescription>Production auth flow with security and recovery paths.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input className="rounded-2xl" placeholder="Work email" />
+            <Input className="rounded-2xl" placeholder="Password" type="password" />
+            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+              <Pill>Google SSO</Pill>
+              <Pill>Microsoft SSO</Pill>
+              <Pill>MFA required for admins</Pill>
+              <Pill>Session device history</Pill>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button className="rounded-2xl">Continue</Button>
+              <Button variant="ghost" className="rounded-2xl" onClick={() => setActivePage("forgot")}>
+                Forgot password?
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activePage === "signup") {
+      return (
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Sign up page</CardTitle>
+            <CardDescription>Create account, verify email, then create first workspace.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input className="rounded-2xl" placeholder="Full name" />
+            <Input className="rounded-2xl" placeholder="Work email" />
+            <Input className="rounded-2xl" placeholder="Password" type="password" />
+            <Input className="rounded-2xl" placeholder="Workspace name" />
+            <div className="grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
+              <Pill>Email verification required</Pill>
+              <Pill>Terms + privacy consent</Pill>
+              <Pill>Optional invite teammates</Pill>
+              <Pill>Start free trial</Pill>
+            </div>
+            <Button className="rounded-2xl">Create account</Button>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activePage === "forgot") {
+      return (
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Forgot password page</CardTitle>
+            <CardDescription>
+              Secure recovery with short-lived token, alerts, and reset confirmation.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input className="rounded-2xl" placeholder="Account email" />
+            <Button className="rounded-2xl">Send reset link</Button>
+            <div className="grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
+              <Pill>Token expires in 15 minutes</Pill>
+              <Pill>One-time use link</Pill>
+              <Pill>Revoke active sessions</Pill>
+              <Pill>Suspicious reset alert</Pill>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activePage === "workspaces") {
+      return (
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Workspaces page</CardTitle>
+            <CardDescription>Support multi-brand organizations with clear tenancy boundaries.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Select value={selectedWorkspace} onValueChange={setSelectedWorkspace}>
+              <SelectTrigger className="rounded-2xl">
+                <SelectValue placeholder="Select workspace" />
+              </SelectTrigger>
+              <SelectContent>
+                {workspaces.map((w) => (
+                  <SelectItem key={w.name} value={w.name}>
+                    {w.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="rounded-2xl border bg-muted/10 p-4 text-sm">
+              <div className="font-semibold">{selectedWs.name}</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                Role: {selectedWs.role} • Members: {selectedWs.members}
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                <div className="rounded-xl border bg-background p-2">Plan: {selectedWs.plan}</div>
+                <div className="rounded-xl border bg-background p-2">Usage: {selectedWs.usage}</div>
+                <div className="rounded-xl border bg-background p-2">Billing: {selectedWs.billing}</div>
+                <div className="rounded-xl border bg-background p-2">Memory scope: isolated</div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button className="rounded-2xl">Create workspace</Button>
+              <Button variant="ghost" className="rounded-2xl">Invite members</Button>
+              <Button variant="ghost" className="rounded-2xl">Manage roles</Button>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activePage === "billing") {
+      return (
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Billing + subscriptions page</CardTitle>
+            <CardDescription>Monetization flows needed for launch and post-launch lifecycle.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              "Plan catalog (Starter/Pro/Scale/Enterprise)",
+              "Start trial + convert to paid",
+              "Upgrade/downgrade/cancel/reactivate",
+              "Payment methods, invoices, receipts, tax IDs",
+              "Failed payment retries + dunning",
+              "Billing contacts + procurement support",
+            ].map((item) => (
+              <div key={item} className="rounded-2xl border bg-muted/10 p-3 text-sm">{item}</div>
+            ))}
+            <div className="mt-2">
+              <Progress value={71} />
+              <div className="mt-2 text-xs text-muted-foreground">Billing implementation readiness: 71%</div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activePage === "usage") {
+      return (
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Usage + limits page</CardTitle>
+            <CardDescription>Transparent usage metering and limit handling for teams.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border bg-muted/10 p-3">
+                <div className="text-xs text-muted-foreground">Generations</div>
+                <div className="mt-1 text-lg font-semibold">8,240 / 10,000</div>
+                <Progress className="mt-2" value={82} />
+              </div>
+              <div className="rounded-2xl border bg-muted/10 p-3">
+                <div className="text-xs text-muted-foreground">Seats</div>
+                <div className="mt-1 text-lg font-semibold">14 / 20</div>
+                <Progress className="mt-2" value={70} />
+              </div>
+              <div className="rounded-2xl border bg-muted/10 p-3">
+                <div className="text-xs text-muted-foreground">Integrations</div>
+                <div className="mt-1 text-lg font-semibold">5 / 8</div>
+                <Progress className="mt-2" value={62} />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button className="rounded-2xl">Upgrade plan</Button>
+              <Button variant="ghost" className="rounded-2xl">Set usage alerts</Button>
+              <Button variant="ghost" className="rounded-2xl">View usage history</Button>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+      <Card className="rounded-2xl shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base">Onboarding + launch readiness page</CardTitle>
+          <CardDescription>Final workflows needed before going public.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {[
+            "In-app onboarding checklist + sample workspace",
+            "Role permissions + audit logs",
+            "Support center + status page",
+            "Legal: terms, privacy, DPA",
+            "Incident runbooks + on-call handoff",
+            "Analytics dashboard for activation + retention",
+          ].map((item) => (
+            <div key={item} className="flex items-start gap-2 rounded-2xl border bg-muted/10 p-3 text-sm">
+              <CheckCircle2 className="mt-0.5 h-4 w-4" />
+              <span>{item}</span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <SectionHeader
+        title="Launch Ops"
+        subtitle="Build this as a full web app: each go-live workflow now has its own page."
+        right={
+          <Button className="rounded-2xl">
+            <CheckCircle2 className="mr-2 h-4 w-4" /> Launch readiness review
+          </Button>
+        }
+      />
+
+      <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
+        <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Pages</CardTitle>
+            <CardDescription>Production app workflow pages.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {pages.map((page) => (
+              <button
+                key={page.key}
+                type="button"
+                onClick={() => setActivePage(page.key)}
+                className={[
+                  "w-full rounded-2xl border px-3 py-2 text-left text-sm transition-all",
+                  activePage === page.key
+                    ? "border-primary/50 bg-primary/15"
+                    : "bg-background/70 hover:border-primary/30",
+                ].join(" ")}
+              >
+                {page.label}
+              </button>
+            ))}
+          </CardContent>
+        </Card>
+
+        {renderPage()}
+      </div>
+    </div>
+  );
+}
 function runSmokeTests() {
   const uniq = (arr: string[]) => new Set(arr).size === arr.length;
 
@@ -2288,95 +2865,240 @@ export default function BatTabPreview() {
               {tab === "brain" ? (
                 <motion.div key="brain" {...FADE} className="space-y-4">
                   <SectionHeader
-                    title="BAT Studio"
-                    subtitle="Connect channels, manage workflows, and approve data access."
+                    title="BAT Brain"
+                    subtitle="Your social marketing memory hub: capture brand intelligence, connect platforms, and control what powers generation."
                     right={
                       <div className="flex items-center gap-2">
                         <Button className="rounded-2xl" onClick={() => setApiOpen(true)}>
-                          <Plug className="mr-2 h-4 w-4" /> Add API
+                          <Plug className="mr-2 h-4 w-4" /> Connect source
                         </Button>
                         <Button
                           variant="ghost"
                           className="rounded-2xl"
                           onClick={() => setUploadOpen(true)}
                         >
-                          <Upload className="mr-2 h-4 w-4" /> Upload
+                          <Upload className="mr-2 h-4 w-4" /> Add memory input
                         </Button>
                       </div>
                     }
                   />
 
-                  <div className="grid gap-4 md:grid-cols-3">
+                  <div className="grid gap-4 md:grid-cols-4">
                     <Stat
-                      label="Connected channels"
+                      label="Connected platforms"
                       value={`${connectedCount} / ${appsCatalog.length}`}
-                      hint="Channels BAT can read and learn from."
+                      hint="Social + paid channels BAT can learn from."
                       icon={<Plug className="h-4 w-4" />}
                     />
                     <Stat
-                      label="Assets indexed"
+                      label="Brand inputs indexed"
                       value={docsIndexed}
-                      hint="Creative assets ready for reuse."
+                      hint="Briefs, voice docs, scripts, and campaign assets."
                       icon={<Database className="h-4 w-4" />}
                     />
                     <Stat
-                      label="Active workflows"
+                      label="Signals tracked"
+                      value={signals}
+                      hint="Performance and audience patterns extracted."
+                      icon={<BarChart3 className="h-4 w-4" />}
+                    />
+                    <Stat
+                      label="Active memory workflows"
                       value={runningCount}
-                      hint="Always-on monitors across channels."
+                      hint="Always-on ingestion and quality checks."
                       icon={<Workflow className="h-4 w-4" />}
                     />
                   </div>
 
-                  <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-                    <Card className="rounded-2xl shadow-sm">
-                      <CardHeader>
-                        <CardTitle className="text-base">Integrations</CardTitle>
-                        <CardDescription>
-                          Connect channels BAT can read and learn from.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="grid gap-4 md:grid-cols-2">
-                        {appsCatalog.map((app) => (
-                          <IntegrationCard
-                            key={app.key}
-                            app={app}
-                            connected={!!connected[app.key]}
-                            onConnect={() =>
-                              setConnected((c) => ({ ...c, [app.key]: true }))
-                            }
-                            onDisconnect={() =>
-                              setConnected((c) => ({ ...c, [app.key]: false }))
-                            }
-                          />
-                        ))}
-                      </CardContent>
-                    </Card>
+                  <Card className="rounded-2xl shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Memory optimization barometer</CardTitle>
+                      <CardDescription>
+                        Overall quality score based on coverage, freshness, and approval confidence.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm font-semibold">BAT Brain optimization</div>
+                          <div className="text-xs text-muted-foreground">
+                            Good foundation. Improve source freshness and approval coverage.
+                          </div>
+                        </div>
+                        <Badge className="rounded-full">82%</Badge>
+                      </div>
 
+                      <Progress value={82} />
+
+                      <div className="grid gap-2 sm:grid-cols-3">
+                        {[
+                          { label: "Coverage", value: 88 },
+                          { label: "Freshness", value: 74 },
+                          { label: "Trust score", value: 84 },
+                        ].map((item) => (
+                          <div key={item.label} className="rounded-2xl border bg-muted/10 p-3">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">{item.label}</span>
+                              <span className="font-medium text-foreground">{item.value}%</span>
+                            </div>
+                            <Progress value={item.value} className="mt-2" />
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
                     <Card className="rounded-2xl shadow-sm">
                       <CardHeader>
-                        <CardTitle className="text-base">Data approval</CardTitle>
+                        <CardTitle className="text-base">Social + marketing integrations</CardTitle>
                         <CardDescription>
-                          Control what BAT can use in outputs.
+                          Sources BAT Brain uses later in content and campaign generation.
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-3">
-                        <ApprovalRow label="Operations" defaultOn />
-                        <ApprovalRow label="Marketing" defaultOn />
-                        <ApprovalRow label="Finance" defaultOn={false} />
-                        <ApprovalRow label="People / HR" defaultOn={false} />
-                        <ApprovalRow label="Customer support" defaultOn />
-                        <div className="pt-2 text-xs text-muted-foreground inline-flex items-center gap-2">
-                          <Lock className="h-4 w-4" /> You can revoke access anytime.
-                        </div>
+                        {appsCatalog.map((app) => {
+                          const isConnected = !!connected[app.key];
+                          return (
+                            <div
+                              key={app.key}
+                              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-muted/10 p-3"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl border bg-background">
+                                  {app.icon}
+                                </div>
+                                <div>
+                                  <div className="text-sm font-semibold">{app.name}</div>
+                                  <div className="text-xs text-muted-foreground">{app.desc}</div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="rounded-full">
+                                  {isConnected ? "Connected" : "Not connected"}
+                                </Badge>
+                                <Button
+                                  variant={isConnected ? "ghost" : "default"}
+                                  className="rounded-2xl"
+                                  onClick={() =>
+                                    setConnected((c) => ({ ...c, [app.key]: !c[app.key] }))
+                                  }
+                                >
+                                  {isConnected ? "Disconnect" : "Connect"}
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </CardContent>
                     </Card>
+
+                    <div className="space-y-4">
+                      <Card className="rounded-2xl shadow-sm">
+                        <CardHeader>
+                          <CardTitle className="text-base">What BAT Brain remembers</CardTitle>
+                          <CardDescription>
+                            Core memory buckets used to ground social outputs.
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          {[
+                            {
+                              title: "Brand voice + messaging",
+                              detail: "Tone, banned phrases, claims policy, CTAs.",
+                              count: "14 docs",
+                            },
+                            {
+                              title: "Audience + ICP",
+                              detail: "Personas, objections, motivations, lifecycle stages.",
+                              count: "9 docs",
+                            },
+                            {
+                              title: "Campaign playbooks",
+                              detail: "Past launches, winning hooks, creative frameworks.",
+                              count: "27 docs",
+                            },
+                            {
+                              title: "Performance memory",
+                              detail: "Top posts, ad fatigue patterns, retention signals.",
+                              count: "Live signals",
+                            },
+                          ].map((bucket) => (
+                            <div key={bucket.title} className="rounded-2xl border bg-muted/10 p-3">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="text-sm font-semibold">{bucket.title}</div>
+                                <Badge variant="secondary" className="rounded-full">
+                                  {bucket.count}
+                                </Badge>
+                              </div>
+                              <div className="mt-1 text-xs text-muted-foreground">{bucket.detail}</div>
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+
+                      <Card className="rounded-2xl shadow-sm">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-base">Memory quality + control</CardTitle>
+                          <CardDescription>
+                            Track indexing quality and enforce source governance.
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm font-medium">Index progress</div>
+                            <div className="text-sm text-muted-foreground">{indexProgress}%</div>
+                          </div>
+                          <Progress value={indexProgress} />
+
+                          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                            <div className="rounded-2xl border bg-muted/20 p-3">
+                              <div className="font-medium text-foreground">{docsIndexed}</div>
+                              <div className="mt-0.5">Memory docs ready</div>
+                            </div>
+                            <div className="rounded-2xl border bg-muted/20 p-3">
+                              <div className="font-medium text-foreground">{signals}</div>
+                              <div className="mt-0.5">Signals validated</div>
+                            </div>
+                          </div>
+
+                          <div className="rounded-2xl border bg-muted/10 p-3">
+                            <div className="text-xs font-semibold">Memory safety controls</div>
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              Restrict generation to approved sources only. Revoke any source at any time.
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <Badge variant="secondary" className="rounded-full">Approved only</Badge>
+                              <Badge variant="secondary" className="rounded-full">PII redaction</Badge>
+                              <Badge variant="secondary" className="rounded-full">Audit trail</Badge>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                              <Lock className="h-4 w-4" /> Private to your org
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="rounded-2xl hover:scale-[1.02] transition-transform duration-200"
+                              onClick={() =>
+                                setIndexProgress((p) => (p >= 96 ? 74 : Math.min(99, p + 7)))
+                              }
+                            >
+                              <RefreshCw className="mr-2 h-4 w-4" /> Re-index memory
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   </div>
 
                   <Card className="rounded-2xl shadow-sm">
                     <CardHeader>
-                      <CardTitle className="text-base">Workflows</CardTitle>
+                      <CardTitle className="text-base">Memory automation workflows</CardTitle>
                       <CardDescription>
-                        Always-on monitors across social and paid media.
+                        Keep BAT Brain up-to-date with automated ingestion and review loops.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -2385,49 +3107,12 @@ export default function BatTabPreview() {
                       ))}
                     </CardContent>
                   </Card>
+                </motion.div>
+              ) : null}
 
-                  <Card className="rounded-2xl shadow-sm">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base">Memory status</CardTitle>
-                      <CardDescription>
-                        Indexing + signal extraction runs continuously.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm font-medium">Index progress</div>
-                        <div className="text-sm text-muted-foreground">{indexProgress}%</div>
-                      </div>
-                      <Progress value={indexProgress} />
-
-                      <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                        <div className="rounded-2xl border bg-muted/20 p-3">
-                          <div className="font-medium text-foreground">{docsIndexed}</div>
-                          <div className="mt-0.5">Docs indexed</div>
-                        </div>
-                        <div className="rounded-2xl border bg-muted/20 p-3">
-                          <div className="font-medium text-foreground">{signals}</div>
-                          <div className="mt-0.5">Signals tracked</div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
-                          <Lock className="h-4 w-4" /> Private to your org
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="rounded-2xl hover:scale-[1.02] transition-transform duration-200"
-                          onClick={() =>
-                            setIndexProgress((p) => (p >= 96 ? 74 : Math.min(99, p + 7)))
-                          }
-                        >
-                          <RefreshCw className="mr-2 h-4 w-4" /> Refresh
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+              {tab === "launch" ? (
+                <motion.div key="launch" {...FADE} className="space-y-4">
+                  <LaunchOps />
                 </motion.div>
               ) : null}
 
