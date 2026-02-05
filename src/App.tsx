@@ -2564,36 +2564,40 @@ export default function BatTabPreview() {
                   </div>
 
                   <Card className="rounded-2xl shadow-sm">
-                    <CardHeader>
-                      <CardTitle className="text-base">Memory input workflow</CardTitle>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Memory optimization barometer</CardTitle>
                       <CardDescription>
-                        Explicit flow for social marketing teams to feed BAT Brain.
+                        Overall quality score based on coverage, freshness, and approval confidence.
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="grid gap-3 md:grid-cols-4">
-                      {[
-                        {
-                          title: "1) Connect channels",
-                          detail: "Instagram, TikTok, YouTube, LinkedIn, paid platforms.",
-                        },
-                        {
-                          title: "2) Add brand context",
-                          detail: "Brand voice, offers, audience segments, campaign goals.",
-                        },
-                        {
-                          title: "3) Approve memory",
-                          detail: "Decide what BAT can use in content generation.",
-                        },
-                        {
-                          title: "4) Generate with confidence",
-                          detail: "Use grounded memory for briefs, posts, scripts, and plans.",
-                        },
-                      ].map((item) => (
-                        <div key={item.title} className="rounded-2xl border bg-muted/10 p-3">
-                          <div className="text-sm font-semibold">{item.title}</div>
-                          <div className="mt-1 text-xs text-muted-foreground">{item.detail}</div>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm font-semibold">BAT Brain optimization</div>
+                          <div className="text-xs text-muted-foreground">
+                            Good foundation. Improve source freshness and approval coverage.
+                          </div>
                         </div>
-                      ))}
+                        <Badge className="rounded-full">82%</Badge>
+                      </div>
+
+                      <Progress value={82} />
+
+                      <div className="grid gap-2 sm:grid-cols-3">
+                        {[
+                          { label: "Coverage", value: 88 },
+                          { label: "Freshness", value: 74 },
+                          { label: "Trust score", value: 84 },
+                        ].map((item) => (
+                          <div key={item.label} className="rounded-2xl border bg-muted/10 p-3">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">{item.label}</span>
+                              <span className="font-medium text-foreground">{item.value}%</span>
+                            </div>
+                            <Progress value={item.value} className="mt-2" />
+                          </div>
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
 
