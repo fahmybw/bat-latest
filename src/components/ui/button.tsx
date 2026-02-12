@@ -13,9 +13,9 @@ export interface ButtonProps
 
 const variantStyles: Record<ButtonVariant, string> = {
   default:
-    "bg-primary text-primary-foreground hover:brightness-110 shadow-sm",
-  secondary: "bg-secondary text-secondary-foreground hover:brightness-110",
-  ghost: "bg-transparent hover:bg-white/5",
+    "bg-primary text-primary-foreground hover:opacity-95",
+  secondary: "bg-secondary text-secondary-foreground hover:bg-muted/70",
+  ghost: "bg-transparent hover:bg-muted/60",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -28,7 +28,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     <button
       ref={ref}
       className={cn(
-        "inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex items-center justify-center rounded-md border border-transparent text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50",
         variantStyles[variant],
         sizeStyles[size],
         className

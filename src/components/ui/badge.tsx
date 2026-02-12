@@ -8,15 +8,15 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: "bg-primary text-primary-foreground",
-  secondary: "bg-secondary text-secondary-foreground",
+  default: "bg-secondary text-secondary-foreground",
+  secondary: "bg-muted text-muted-foreground",
 };
 
 function Badge({ className, variant = "default", ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold",
+        "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium",
         variantStyles[variant],
         className
       )}

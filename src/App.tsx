@@ -95,8 +95,7 @@ type TabKey =
   | "generate"
   | "calendar"
   | "brain"
-  | "analytics"
-  | "launch";
+  | "analytics";
 
 type TabMeta = { key: TabKey; label: string; icon: React.ReactNode };
 
@@ -130,39 +129,33 @@ const TAB_META: TabMeta[] = [
   { key: "calendar", label: "Content Calendar", icon: <Calendar className="h-4 w-4" /> },
   { key: "brain", label: "BAT Brain", icon: <Brain className="h-4 w-4" /> },
   { key: "analytics", label: "Performance", icon: <BarChart3 className="h-4 w-4" /> },
-  { key: "launch", label: "Launch Ops", icon: <Globe className="h-4 w-4" /> },
 ];
 
 const TAB_STYLE: Record<TabKey, { glow: string; ring: string; icon: string }> = {
   chat: {
-    glow: "from-amber-500/20 via-orange-500/15 to-rose-500/20",
-    ring: "ring-amber-500/20",
-    icon: "text-amber-200/80",
+    glow: "from-zinc-500/10 via-zinc-500/5 to-zinc-500/10",
+    ring: "ring-white/10",
+    icon: "text-muted-foreground",
   },
   generate: {
-    glow: "from-blue-500/20 via-indigo-500/15 to-violet-500/20",
-    ring: "ring-blue-500/20",
-    icon: "text-blue-200/80",
+    glow: "from-zinc-500/10 via-zinc-500/5 to-zinc-500/10",
+    ring: "ring-white/10",
+    icon: "text-muted-foreground",
   },
   calendar: {
-    glow: "from-lime-500/20 via-emerald-500/15 to-green-500/20",
-    ring: "ring-lime-500/20",
-    icon: "text-lime-200/80",
+    glow: "from-zinc-500/10 via-zinc-500/5 to-zinc-500/10",
+    ring: "ring-white/10",
+    icon: "text-muted-foreground",
   },
   brain: {
-    glow: "from-emerald-500/20 via-teal-500/15 to-cyan-500/20",
-    ring: "ring-emerald-500/20",
-    icon: "text-emerald-200/80",
+    glow: "from-zinc-500/10 via-zinc-500/5 to-zinc-500/10",
+    ring: "ring-white/10",
+    icon: "text-muted-foreground",
   },
   analytics: {
-    glow: "from-cyan-500/20 via-sky-500/15 to-indigo-500/20",
-    ring: "ring-cyan-500/20",
-    icon: "text-cyan-200/80",
-  },
-  launch: {
-    glow: "from-violet-500/20 via-fuchsia-500/15 to-pink-500/20",
-    ring: "ring-violet-500/20",
-    icon: "text-violet-200/80",
+    glow: "from-zinc-500/10 via-zinc-500/5 to-zinc-500/10",
+    ring: "ring-white/10",
+    icon: "text-muted-foreground",
   },
 };
 
@@ -500,7 +493,7 @@ function TopBar({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button className="rounded-2xl hover:scale-[1.03] transition-transform duration-300 shadow-[0_0_20px_rgba(0,255,255,0.25)] bg-gradient-to-r from-cyan-500 to-blue-600 text-white">
+        <Button variant="secondary" className="rounded-md border">
           <Sparkles className="mr-2 h-4 w-4" /> New Insight
         </Button>
       </div>
@@ -511,7 +504,7 @@ function TopBar({
 function TabNav({ tab, setTab }: { tab: TabKey; setTab: (t: TabKey) => void }) {
   return (
     <div className="rounded-2xl border bg-muted/20 p-1.5 sm:p-2 shadow-sm">
-      <div className="grid grid-cols-2 gap-1.5 md:grid-cols-6 md:gap-2">
+      <div className="grid grid-cols-2 gap-1.5 md:grid-cols-5 md:gap-2">
         {TAB_META.map((t) => {
           const styles = TAB_STYLE[t.key];
           const active = tab === t.key;
@@ -3118,11 +3111,6 @@ export default function BatTabPreview() {
                 </motion.div>
               ) : null}
 
-              {tab === "launch" ? (
-                <motion.div key="launch" {...FADE} className="space-y-4">
-                  <LaunchOps />
-                </motion.div>
-              ) : null}
 
               {tab === "analytics" ? (
                 <motion.div key="analytics" {...FADE} className="space-y-4">
